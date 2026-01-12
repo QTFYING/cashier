@@ -5,3 +5,6 @@ coverage
 .idea
 .vscode
 *.log
+
+# Monorepo
+.turbo

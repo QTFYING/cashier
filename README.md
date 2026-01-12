@@ -4,7 +4,7 @@
 
 ![Cashier Banner](https://placeholder.im/?size=300x200&bg=ff5733&text=Hello&format=png&textcolor=000000)
 
-[![NPM Version](https://img.shields.io/npm/v/@cashier/core?style=flat-square&color=blue)](https://www.npmjs.com/package/@cashier/core)
+[![NPM Version](https://img.shields.io/npm/v/@my-cashier/core?style=flat-square&color=blue)](https://www.npmjs.com/package/@my-cashier/core)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](./LICENSE)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/virgo/cashier/build.yml?branch=main&style=flat-square)](https://github.com/virgo/cashier/actions)
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript-007ACC?style=flat-square)](https://www.typescriptlang.org/)
@@ -82,10 +82,10 @@ graph TD
 
 ```bash
 # 安装核心包
-pnpm add @cashier/core @cashier/types
+pnpm add @my-cashier/core @my-cashier/types
 
 # 根据需要安装工具包
-pnpm add @cashier/utils
+pnpm add @my-cashier/utils
 ```
 
 ## 🚀 快速开始 (Quick Start)
@@ -93,8 +93,8 @@ pnpm add @cashier/utils
 ### 1. 初始化 SDK
 
 ```typescript
-import { PaymentContext } from '@cashier/core';
-import { WechatStrategy } from '@cashier/core/strategies'; // 或按需导出
+import { PaymentContext } from '@my-cashier/core';
+import { WechatStrategy } from '@my-cashier/core/strategies'; // 或按需导出
 
 // 1. 实例化上下文
 const cashier = new PaymentContext({

@@ -1,5 +1,5 @@
+import { type PayResult, PayErrorCode } from '@my-cashier/types';
 import { PayError } from '../payment-error';
-import { type PayResult, PayErrorCode } from '@cashier/types';
 import type { PaymentInvoker } from './types';
 
 // 声明 wx 全局对象，防止 TS 报错

@@ -1,4 +1,4 @@
-import { type PayResult, PayErrorCode } from '@cashier/types';
+import { type PayResult, PayErrorCode } from '@my-cashier/types';
 import { PayError } from '../payment-error';
 import { PaymentInvoker } from './types';
 

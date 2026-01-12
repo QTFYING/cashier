@@ -1,4 +1,4 @@
-import type { PaymentInvoker } from '@cashier/types';
+import type { PaymentInvoker } from '@my-cashier/types';
 
 declare const JSBridge: any;
 

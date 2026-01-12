@@ -1,4 +1,4 @@
-import { ErrorCategory, PayErrorCode } from '@cashier/types';
+import { ErrorCategory, PayErrorCode } from '@my-cashier/types';
 
 export class PayError extends Error {
   public readonly code: PayErrorCode;

@@ -1,5 +1,5 @@
 {
-  "name": "@cashier/types",
+  "name": "@my-cashier/types",
   "version": "1.0.0",
   "description": "Shared TypeScript definitions and contracts for Cashier SDK",
   "main": "dist/index.js",
@@ -13,7 +13,8 @@
     }
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts"
+    "build": "tsup src/index.ts --format cjs,esm --dts --minify",
+    "clean": "rm -rf dist"
   },
   "devDependencies": {
     "tsup": "^8.0.0",

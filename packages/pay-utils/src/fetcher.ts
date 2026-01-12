@@ -1,4 +1,4 @@
-import type { HttpClient } from '@cashier/types';
+import type { HttpClient } from '@my-cashier/types';
 
 export const createDefaultFetcher = function (): HttpClient {
   return {

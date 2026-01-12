@@ -1,5 +1,5 @@
+import { PaymentChannelEnum, type HttpClient, type PayParams, type PayResult } from '@my-cashier/types';
 import { WechatAdapter } from '../adapters';
-import { PaymentChannelEnum, type HttpClient, type PayParams, type PayResult } from '@cashier/types';
 import { BaseStrategy } from './base-strategy';
 
 // 定义微信策略需要的配置类型

@@ -1,4 +1,4 @@
-import type { PayResult } from '@cashier/types'; // 注意调整引用路径
+import type { PayResult } from '@my-cashier/types'; // 注意调整引用路径
 
 /**
  * 支付执行器接口

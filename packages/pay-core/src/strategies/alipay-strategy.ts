@@ -1,5 +1,5 @@
+import type { HttpClient, PayParams, PayResult } from '@my-cashier/types';
 import { AlipayAdapter } from '../adapters';
-import type { HttpClient, PayParams, PayResult } from '@cashier/types';
 import { BaseStrategy } from './base-strategy';
 
 type AlipayResponse =

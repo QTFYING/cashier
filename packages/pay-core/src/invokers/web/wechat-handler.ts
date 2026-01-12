@@ -1,4 +1,4 @@
-import { ScriptLoader } from '@cashier/utils';
+import { ScriptLoader } from '@my-cashier/utils';
 import type { WebChannelHandler } from './types';
 
 declare const _wx: any;
