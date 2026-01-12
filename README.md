@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Cashier Banner](https://via.placeholder.com/1200x300?text=Cashier+Next+SDK)
+![Cashier Banner](https://placeholder.im/?size=300x200&bg=ff5733&text=Hello&format=png&textcolor=000000)
 
 [![NPM Version](https://img.shields.io/npm/v/@cashier/core?style=flat-square&color=blue)](https://www.npmjs.com/package/@cashier/core)
 [![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](./LICENSE)
