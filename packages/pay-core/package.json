@@ -1,6 +1,6 @@
 {
   "name": "@my-cashier/core",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Core logic engine for Cashier SDK",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -12,6 +12,9 @@
       "require": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --minify",
     "clean": "rm -rf dist"

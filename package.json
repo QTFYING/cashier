@@ -1,6 +1,6 @@
 {
-  "name": "cashier-next",
-  "version": "1.0.0",
+  "name": "my-cashier",
+  "version": "0.0.1",
   "private": false,
   "description": "现代化的支付中台解决方案，支持主流支付场景，提供丰富的支付策略和插件机制，支持 Web 和 Hybrid App（如 uni-app）开发，提供 TypeScript 类型定义，支持自动化版本控制和发布，提供详细的开发文档和示例代码。",
   "scripts": {
