@@ -93,12 +93,11 @@ pnpm add @my-cashier/utils
 ### 1. 初始化 SDK
 
 ```typescript
-import { PaymentContext } from '@my-cashier/core';
-import { WechatStrategy } from '@my-cashier/core/strategies'; // 或按需导出
+import { PaymentContext, WechatStrategy } from '@my-cashier/core';
 
 // 1. 实例化上下文
 const cashier = new PaymentContext({
-  env: 'uniapp', // 或 'web', 'miniapp'
+  invokerType: 'uniapp', // 或 'web', 'wechat-mini'
   debug: true,
   // 注入你的 HTTP 客户端 (Axios/Fetch)
   http: requestInstance
@@ -119,7 +118,7 @@ try {
   const result = await cashier.execute('wechat', {
     orderId: '202301010001',
     amount: 100, // 分
-    desc: 'VIP 会员充值'
+    description: 'VIP 会员充值'
   });
 
   if (result.status === 'success') {
