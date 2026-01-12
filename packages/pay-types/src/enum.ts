@@ -19,3 +19,7 @@ export enum PayStEnum {
   FAIL = 'fail',
   CANCEL = 'cancel',
 }
+
+export type PayPlatformType = 'wechat' | 'alipay' | 'unionpay' | 'other' | string;
+
+export type InvokerType = 'uniapp' | 'web' | 'wechat-mini' | 'alipay-mini' | string;

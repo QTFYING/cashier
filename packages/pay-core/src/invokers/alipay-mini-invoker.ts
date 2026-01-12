@@ -1,5 +1,6 @@
-import { PayError } from '../core/payment-error';
-import { type PaymentInvoker, type PayResult, PayErrorCode } from '@cashier/types';
+import { type PayResult, PayErrorCode } from '@cashier/types';
+import { PayError } from '../payment-error';
+import { PaymentInvoker } from './types';
 
 // 声明支付宝全局对象
 declare const my: any;

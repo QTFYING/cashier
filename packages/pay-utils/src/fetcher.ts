@@ -1,11 +1,11 @@
-import type { HttpClient } from '../types';
+import type { HttpClient } from '@cashier/types';
 
 export const createDefaultFetcher = function (): HttpClient {
   return {
-    get: (url, config) => {
+    get: (url: string, config?: any) => {
       return fetch(url, { method: 'GET', ...config }).then((r) => r.json());
     },
-    post: (url, body, config) => {
+    post: (url: string, body: any, config?: any) => {
       return fetch(url, {
         method: 'POST',
         body: JSON.stringify(body),

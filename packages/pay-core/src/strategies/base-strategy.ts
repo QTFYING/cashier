@@ -1,5 +1,5 @@
 import type { HttpClient, PayParams, PayResult, PaySt } from '@cashier/types';
-import type { StrategyOptions } from '../types/protocol';
+import type { StrategyOptions } from '@cashier/types';
 
 export type StateCallBack = (status: PaySt) => void;
 

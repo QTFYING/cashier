@@ -1,4 +1,4 @@
-import type { InvokerType } from '../core/invoker-factory';
+import type { InvokerType } from './enum';
 import type { HttpClient } from './http';
 import type { PaymentPlugin } from './lifecycle';
 

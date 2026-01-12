@@ -1,5 +1,16 @@
-import type { PaymentContext } from '../core/payment-context';
 import type { PayParams, PayResult, PaySt } from './protocol';
+
+/**
+ * 为了避免循环依赖，这里定义一个 Context 的最小核心接口
+ * 插件只需要知道 Context 有这些能力即可
+ */
+export interface IPaymentContext {
+  store: any;
+  on(event: string, fn: Function): void;
+  emit(event: string, payload?: any): void;
+  off(event: string, fn: Function): void;
+  [key: string]: any;
+}
 
 /**
  * 1. 运行时上下文 (Mutable Context)
@@ -7,7 +18,7 @@ import type { PayParams, PayResult, PaySt } from './protocol';
  */
 export interface PaymentContextState {
   // context为宿主 Context 的引用，让插件能操作 Bus
-  context: PaymentContext;
+  context: IPaymentContext;
 
   // 阶段 1: 初始入参 (可被修改，如增加 token)
   params: PayParams;

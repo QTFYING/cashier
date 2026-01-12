@@ -1,6 +1,5 @@
-import type { SDKConfig } from '../core/payment-context';
 import type { HttpClient, PayParams, PayResult } from '@cashier/types';
-import { BaseStrategy } from './base-strategy'; // 假设路径
+import { BaseStrategy } from './base-strategy';
 
 // 定义 Mock 特有的配置接口
 export interface MockStrategyConfig {
@@ -23,38 +22,35 @@ export class MockStrategy extends BaseStrategy<MockStrategyConfig> {
   }
 
   /**
-   * 实现核心支付逻辑
+   * 阶段1：准备支付
+   * Mock策略直接返回参数作为 Payload，模拟后端签名过程
    */
-  async pay(params: PayParams, _http: HttpClient, invokerType: SDKConfig['invokerType']): Promise<PayResult> {
-    console.log(`\n[Mock Strategy] 开始执行支付...`);
-    console.log(`- 场景: ${this.config.scenario}`);
-    console.log(`- 环境: ${invokerType}`);
-    console.log(`- 参数:`, params);
+  async prepare(params: PayParams, _http: HttpClient): Promise<any> {
+    console.log(`[Mock Strategy] Prepare:`, params);
+    // 模拟网络延时
+    if (this.config.latency) {
+      await new Promise((resolve) => setTimeout(resolve, this.config.latency));
+    }
+    return { ...params, _mock_sign: 'signed_by_mock', _scenario: this.config.scenario };
+  }
 
-    // 1. 复用父类的参数校验 (如果父类逻辑不够，也可以在这里重写)
-    this.validateParams(params);
+  /**
+   * 阶段3：处理结果
+   * Mock策略直接根据配置返回成功或失败
+   */
+  process(rawResult: any): PayResult {
+    console.log(`[Mock Strategy] Process:`, rawResult);
+    const scenario = this.config.scenario || 'success';
 
-    // 2. 模拟网络延时
-    await new Promise((resolve) => setTimeout(resolve, this.config.latency));
-
-    // 3. 根据配置分发结果
-    // 注意：这里就可以直接使用父类的 protected 方法了
-    switch (this.config.scenario) {
+    switch (scenario) {
       case 'success':
-        return this.success(this.config.mockTransactionId || `MOCK_${Date.now()}`, { mockData: 'ok' });
-
+        return this.success(this.config.mockTransactionId || `MOCK_${Date.now()}`, rawResult);
       case 'fail':
-        return this.fail('模拟支付失败：余额不足', { code: 'ERR_BALANCE' });
-
-      case 'timeout':
-        // 模拟抛错，通常由 SDK 外部捕获或由 BaseStrategy 处理
-        throw new Error('TIMEOUT');
-
+        return this.fail('模拟支付失败', rawResult);
       case 'cancel':
-        return this.fail('用户取消支付', { code: 'USER_CANCEL' });
-
+        return this.fail('用户取消支付', { ...rawResult, code: 'USER_CANCEL' });
       default:
-        return this.fail('未知的模拟场景');
+        return this.success(`MOCK_${Date.now()}`, rawResult);
     }
   }
 
