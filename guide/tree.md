@@ -49,3 +49,8 @@ cashier2/
 ├── tsconfig.json
 └── rollup.config.js                 # 打包配置 (ESM/CJS/UMD)
 ```
+
+
+
+
+1231
