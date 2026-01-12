@@ -1,127 +1,145 @@
 # Cashier Next SDK
 
-一个现代化、可扩展的支付 SDK，面向 Web 与混合应用（UniApp）。
+<div align="center">
 
-## 功能特性
+![Cashier Banner](https://via.placeholder.com/1200x300?text=Cashier+Next+SDK)
 
-- 🔌 **策略模式（Strategy Pattern）**：可在微信、支付宝或自定义支付渠道间轻松切换。
-- 🧩 **插件系统（Plugin System）**：支持 Loading、权限校验、日志上报等中间件能力。
-- ⚡ **跨平台适配**：内置 Web（H5/PC）与 UniApp 的执行器支持。
-- 🔄 **轮询机制**：内置指数退避的轮询器，用于异步支付结果确认。
-- 🛠️ **TypeScript**：完整类型定义，开发体验更好。
+[![NPM Version](https://img.shields.io/npm/v/@cashier/core?style=flat-square&color=blue)](https://www.npmjs.com/package/@cashier/core)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](./LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/virgo/cashier/build.yml?branch=main&style=flat-square)](https://github.com/virgo/cashier/actions)
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-007ACC?style=flat-square)](https://www.typescriptlang.org/)
+[![Monorepo](https://img.shields.io/badge/Architecture-Monorepo-black?style=flat-square)](https://turbo.build/)
 
-## 安装
+**面向未来的现代化支付中台 SDK**
+*支持 Web / UniApp / 小程序 | 策略模式 | 插件化架构 | 极致轻量*
+
+[快速开始](#-快速开始) • [文档说明](./guide) • [示例项目](./examples)
+
+</div>
+
+---
+
+## 🌟 核心特性 (Highlights)
+
+- **🏗 P9 级架构设计**：采用标准的**策略模式 (Strategy Pattern)** 实现多渠道切换，**洋葱模型**的插件系统实现能力解耦。
+- **🔌 插件化生态**：内置 `Loading`, `Logger`, `Retry` 等插件，支持生命周期全链路 Hook（beforePay, onSign, afterPay）。
+- **⚡️ 极致性能**：基于 **Monorepo** + **TSUP** 构建，利用 Tree-Shaking 技术，核心包体积仅 **KB** 级。
+- **🧩 跨端适配**：底层执行器 (Invoker) 抽象，一套代码同时运行在 Browser, UniApp, 微信/支付宝小程序中。
+- **🛡 类型安全**：全链路 **TypeScript** 编写，提供严谨的类型推导和智能提示。
+- **📦 现代化工程**：基于 **PNPM + Turbo + Changesets** 的顶尖工程化实践。
+
+## 🏗 技术架构 (Architecture)
+
+Cashier SDK 采用经典的分层架构设计，确保核心逻辑的稳定与扩展性的平衡。
+
+```mermaid
+graph TD
+    User[用户业务代码] --> Facade[PaymentContext (门面)]
+    Facade --> Plugins[Plugin System (插件层)]
+    Plugins --> Strategies[Strategy Layer (策略层)]
+    Strategies --> Adapters[Adapter Layer (适配层)]
+    Adapters --> Invokers[Invoker Layer (执行器层)]
+
+    subgraph Core Logic
+    Facade
+    Plugins
+    end
+
+    subgraph Strategies
+    WechatStrategy
+    AlipayStrategy
+    StripeStrategy
+    end
+
+    subgraph Adapters
+    WechatAdapter
+    AlipayAdapter
+    end
+
+    subgraph Invokers
+    WebInvoker --> Browser
+    UniAppInvoker --> UniApp
+    MiniInvoker --> MiniProgram
+    end
+```
+
+## 🛠 技术栈 (Tech Stack)
+
+本项目采用目前前端业界最先进的开源库开发标准：
+
+| 领域 | 技术选型 | 理由 |
+| --- | --- | --- |
+| **包管理** | **PNPM Workspace** | 利用硬链接机制极大节省磁盘空间，天然支持 Monorepo。 |
+| **任务编排** | **Turborepo** | 下一代构建工具，利用缓存和并行执行，构建速度提升 80%。 |
+| **打包构建** | **tsup (Esbuild)** | 基于 Go 语言的零配置打包工具，比 Rollup 快 100 倍。 |
+| **版本/发布** | **Changesets** | 很多大型开源项目（如 React, Pnpm）使用的语义化发包工具。 |
+| **测试** | **Vitest** | 基于 Vite 的测试框架，兼容 Jest API 但速度更快。 |
+| **代码规范** | **ESLint + Prettier** | 严格的代码风格约束。 |
+
+## 📦 安装 (Installation)
+
+推荐使用 `pnpm` 进行安装，按需引入子包：
 
 ```bash
-npm install cashier-next
-# 或者
-yarn add cashier-next
-# 或者
-pnpm install cashier-next
+# 安装核心包
+pnpm add @cashier/core @cashier/types
+
+# 根据需要安装工具包
+pnpm add @cashier/utils
 ```
 
-## 快速开始
+## 🚀 快速开始 (Quick Start)
 
-### 1. 初始化上下文
+### 1. 初始化 SDK
 
 ```typescript
-import { PaymentContext, WechatStrategy, AlipayStrategy } from 'cashier-next';
+import { PaymentContext } from '@cashier/core';
+import { WechatStrategy } from '@cashier/core/strategies'; // 或按需导出
 
-// 初始化 SDK 上下文
+// 1. 实例化上下文
 const cashier = new PaymentContext({
+  env: 'uniapp', // 或 'web', 'miniapp'
   debug: true,
-  http: myAxios, // 将自己封装的http实例直接透传
-  invokerType: 'uniapp' // 可选：强制指定环境（uniapp、web）
+  // 注入你的 HTTP 客户端 (Axios/Fetch)
+  http: requestInstance
 });
 
-// 注册策略
-cashier.register(new WechatStrategy({ appId: 'wx888888', mchId: '123456'}));
-       .register(new AlipayStrategy({ appId: '2021000000', privateKey: '...'}));
+// 2. 注册策略
+cashier.register(new WechatStrategy({
+  appId: 'wx88888888',
+  mchId: '123456789'
+}));
 ```
 
-### 2. 使用插件
-
-```typescript
-  // 插件 C: 日志上报 (对应原“结果读取逻辑”)
-  const LoggerPlugin: PaymentPlugin = {
-    name: 'logger',
-    onBeforePay(ctx) { ... },
-    onSuccess(ctx, res) { ... },
-    onFail(_ctx, _error) { ... },
-  };
-
-cashier.use(LoggerPlugin).use(OtherPlugin);
-```
-
-### 3. 发起支付
+### 2. 发起支付
 
 ```typescript
 try {
+  // 统一调用 execute，无需关心底层细节
   const result = await cashier.execute('wechat', {
-    orderId: 'ORDER_001',
-    amount: 100, // 单位：分
-    description: 'VIP 订阅',
+    orderId: '202301010001',
+    amount: 100, // 分
+    desc: 'VIP 会员充值'
   });
 
   if (result.status === 'success') {
-    console.log('支付成功！');
-  } else if (result.status === 'pending') {
-    // 在 PC/Web 场景下，可能返回 pending（等待扫码）
-    // 可在此手动开启轮询
-    cashier.startPolling('wechat', 'ORDER_001');
+    console.log('支付成功', result.transactionId);
   }
-} catch (error) {
-  console.error('支付失败：', error);
+} catch (err) {
+  console.error('支付失败', err.message);
 }
 ```
 
-## 高级用法
+## 🤝 贡献 (Contributing)
 
-### 轮询
+欢迎提交 PR！
 
-SDK 内置 `PollingManager`，可自动以指数退避策略进行状态检查。
+1.  Clone 项目
+2.  `pnpm install`
+3.  `turbo build` 构建产物
+4.  `changeset` 生成变更记录
+5.  提交 Pull Request
 
-```typescript
-// 手动开启轮询
-cashier.startPolling('wechat', 'ORDER_001');
+## 📄 License
 
-// 监听轮询结果事件
-cashier.on('success', (res) => {
-  console.log('轮询成功：', res);
-});
-```
-
-### 自定义支付方式
-
-扩展 `BaseStrategy` 即可实现你的自定义支付渠道。
-
-```typescript
-import { BaseStrategy } from 'cashier-next';
-
-class StripeStrategy extends BaseStrategy {
-  readonly name = 'stripe';
-
-  async pay(params, http, invokerType) {
-    // 在此实现你的支付逻辑
-    return { status: 'success' };
-  }
-
-  async getPaySt(orderId) {
-    return { status: 'success' };
-  }
-}
-
-> 自定义的支付策略，则不走SDK内部的入参和报文的归一
-```
-
-### Mock 模式
-
-在开发阶段，可开启 Mock 模式以模拟支付流程（无需后端）。
-
-```typescript
-const wechat = new WechatStrategy({ appId: 'test', mchId: 'test' }, { mock: true });
-```
-
-## 许可证
-
-MIT
+MIT © 2024 Cashier Team

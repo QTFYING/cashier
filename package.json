@@ -1,39 +1,30 @@
 {
   "name": "cashier-next",
   "version": "1.0.0",
-  "description": "A modern, extensible payment SDK for Web and Hybrid Apps (UniApp)",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "browser": "dist/index.umd.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "private": false,
+  "description": "现代化的支付中台解决方案，支持主流支付场景，提供丰富的支付策略和插件机制，支持 Web 和 Hybrid App（如 uni-app）开发，提供 TypeScript 类型定义，支持自动化版本控制和发布，提供详细的开发文档和示例代码。",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
+    "build": "turbo build",
+    "dev": "turbo dev",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "npm run build"
+    "lint": "turbo lint",
+    "clean": "turbo clean",
+    "changeset": "changeset",
+    "release": "changeset publish"
   },
   "keywords": [
     "payment",
     "sdk",
-    "wechat-pay",
-    "alipay",
-    "uniapp",
-    "typescript"
+    "monorepo"
   ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^25.0.0",
-    "@rollup/plugin-node-resolve": "^15.0.0",
-    "@rollup/plugin-typescript": "^11.0.0",
-    "rollup": "^4.0.0",
-    "tslib": "^2.0.0",
+    "@changesets/cli": "^2.27.0",
+    "turbo": "^2.0.0",
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"
-  }
+  },
+  "packageManager": "pnpm@9.0.0"
 }
