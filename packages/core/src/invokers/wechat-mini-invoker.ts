@@ -8,7 +8,7 @@ declare const wx: any;
 
 export class WechatMiniInvoker implements PaymentInvoker {
   constructor(
-    private channel: string,
+    private _provider: string,
     public logger?: Logger,
   ) {}
 

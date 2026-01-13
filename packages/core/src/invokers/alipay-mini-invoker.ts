@@ -7,7 +7,7 @@ declare const my: any;
 
 export class AlipayMiniInvoker implements PaymentInvoker {
   constructor(
-    private provider: string,
+    private _provider: string,
     public logger?: Logger,
   ) {}
 

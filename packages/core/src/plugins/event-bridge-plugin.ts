@@ -17,7 +17,7 @@ export const EventBridgePlugin: PaymentPlugin = {
 
   onStateChange(ctx, _result) {
     const bus = ctx.context as PaymentContext;
-    bus.emit('statusChange', { status: ctx.state.status, result: ctx.result });
+    bus.emit('statusChange', { status: ctx.state?.status, result: ctx.result });
   },
 
   onSuccess(ctx, result) {
@@ -29,9 +29,9 @@ export const EventBridgePlugin: PaymentPlugin = {
     const bus = ctx.context as PaymentContext;
     // 区分是 cancel 还是 fail
     if (error instanceof Error && error.message.includes('cancel')) {
-      bus.emit('cancel', { status: ctx.state.status });
+      bus.emit('cancel', { status: ctx.state?.status });
     } else {
-      bus.emit('fail', { status: ctx.state.status });
+      bus.emit('fail', { status: ctx.state?.status });
     }
   },
 };
