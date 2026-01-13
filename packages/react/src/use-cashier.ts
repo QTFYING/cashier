@@ -1,5 +1,5 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { PayParams, PayResult } from '@my-cashier/core';
+import { useCallback, useContext, useEffect, useRef } from 'react';
 import { CashierContext } from './cashier-context';
 import { PaymentStatusEnum } from './enums';
 import type { UseCashierOptions } from './types';
@@ -7,7 +7,6 @@ import { useStore } from './use-store';
 
 export function useCashier(options: UseCashierOptions = {}) {
   const context = useContext(CashierContext);
-  const [orderId, setOrderId] = useState('');
 
   if (!context) {
     throw new Error('useCashier must be used within a CashierProvider');
@@ -73,26 +72,6 @@ export function useCashier(options: UseCashierOptions = {}) {
     cashier.store.setState({ loading: false, status: 'idle', result: undefined, error: undefined });
   }, [cashier]);
 
-  // --- 4. 上下游场景：退款 ---
-  const refund = useCallback(() => {}, []);
-
-  // --- 5. 上下游场景：创建订单 ---
-  const create = useCallback(
-    async (params: any) => {
-      try {
-        // 复用 Store 的 loading 状态
-        cashier.store.setState({ loading: true });
-        // 建议hooks中的http请求全部读取context中的http实例
-        const { orderId } = await cashier.http.post('/payment/create', params);
-        setOrderId(orderId);
-        return orderId;
-      } finally {
-        cashier.store.setState({ loading: false });
-      }
-    },
-    [cashier],
-  );
-
   return {
     // 基础状态
     loading: state.loading,
@@ -101,14 +80,9 @@ export function useCashier(options: UseCashierOptions = {}) {
     status: state.status,
     statusText: state.status ? PaymentStatusEnum[state.status] : '',
 
-    // 订单相关信息
-    orderId,
-
     // 方法
     pay,
     reset,
-    refund,
-    create,
 
     // 实例
     cashier,

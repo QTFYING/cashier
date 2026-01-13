@@ -20,11 +20,7 @@ export interface UseCashierOptions {
 export interface CashierActions {
   // 核心动作
   pay: (strategyName: string, params: PayParams) => Promise<PayResult>;
-  refund: (orderId: string, amount: number) => Promise<any>; // 退款
-
-  // 辅助动作
-  calculatePrice: (original: number, coupons: any[]) => number; // 计算最终价
-  registerPlugin: (plugin: PaymentPlugin) => void; // 动态注册
+  reset: () => void;
 }
 
 export interface CashierState {
