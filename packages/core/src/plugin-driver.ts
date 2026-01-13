@@ -1,8 +1,11 @@
-import { type PaymentPlugin, PayErrorCode } from '@my-cashier/types';
+import { PayErrorCode, type Logger, type PaymentPlugin } from '@my-cashier/types';
 import { PayError } from './payment-error';
 
 export class PluginDriver {
-  constructor(private plugins: PaymentPlugin[] = []) {}
+  constructor(
+    private plugins: PaymentPlugin[] = [],
+    private logger?: Logger,
+  ) {}
 
   register(plugin: PaymentPlugin) {
     this.plugins.push(plugin);
@@ -34,7 +37,7 @@ export class PluginDriver {
         }
 
         // 场景 B: 自身是 Non-Critical 插件 -> 吞掉错误，仅打印警告，流程继续！
-        console.warn(`[⚠️ Non-Critical Plugin ${plugin.name}] error ignored:`, err.message);
+        this.logger?.warn(`[⚠️ Non-Critical Plugin ${plugin.name}] error ignored:`, err.message);
       }
     }
   }
@@ -67,12 +70,13 @@ export class PluginDriver {
     const createHandler = (path: string): ProxyHandler<any> => ({
       set: (target, prop, value, receiver) => {
         if (typeof prop === 'string' && !prop.startsWith('_')) {
-          // 只有开发环境下才开启 (可以通过全局变量或 SDK Config 判断，这里简化为总是开启或 console检查)
           // 实际生产建议配合 SDKConfig.debug 使用
-          console.groupCollapsed(`🕵️ [Context Audit] Plugin "${pluginName}" modified "${path}${prop}"`);
-          console.log('Before:', target[prop]);
-          console.log('After:', value);
-          console.groupEnd();
+          if (this.logger) {
+            this.logger.debug(`🕵️ [Context Audit] Plugin "${pluginName}" modified "${path}${prop}"`, {
+              before: target[prop],
+              after: value,
+            });
+          }
         }
         return Reflect.set(target, prop, value, receiver);
       },

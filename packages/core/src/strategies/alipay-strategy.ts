@@ -33,7 +33,7 @@ export class AlipayStrategy extends BaseStrategy<any> {
       return { status: 'pending', message: 'User is paying' };
     }
 
-    console.log('有订单号了，支付宝支付成功啦～');
+    this.logger?.info('有订单号了，支付宝支付成功啦～');
 
     return this.success(`MOCK`, { source: 'mock', elapsed });
   }
@@ -46,15 +46,14 @@ export class AlipayStrategy extends BaseStrategy<any> {
     this.adapter.validate(params);
     const payload = this.adapter.transform(params);
 
-    // 2. 后端签名 & 下单
-    // 如果是 APP/小程序，后端返回 { orderStr: "..." }
-    // 如果是 Wap/PC，后端返回 { form: "<form>..." } 或 { url: "..." }
-    const signedData = await http.post<AlipayResponse>('/payment/alipay', payload);
-
     // mock数据重置
     this.startTime = Date.now();
 
-    return signedData;
+    // 2. 后端签名 & 下单
+    // 如果是 APP/小程序，后端返回 { orderStr: "..." }
+    // 如果是 Wap/PC，后端返回 { form: "<form>..." } 或 { url: "..." }
+
+    return await http.post<AlipayResponse>('/payment/alipay', payload);
   }
 
   /**
@@ -65,6 +64,4 @@ export class AlipayStrategy extends BaseStrategy<any> {
     // 这里需要处理一下 invoke 返回的差异，或者交给 Adapter
     return this.adapter.normalize(rawResult);
   }
-
-  // async payWithPolling() {}
 }

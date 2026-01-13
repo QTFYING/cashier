@@ -1,6 +1,7 @@
 import type { InvokerType } from './enum';
 import type { HttpClient } from './http';
 import type { PaymentPlugin } from './lifecycle';
+import { Logger } from './logger';
 
 /**
  * SDK 全局配置接口
@@ -12,6 +13,9 @@ export interface SDKConfig {
 
   /** 依赖注入的 HTTP 客户端 */
   http?: HttpClient;
+
+  /** 自定义日志记录器 */
+  logger?: Logger;
 
   /** 显式指定运行环境 (通常不需要，SDK 会自动探测) */
   invokerType?: InvokerType;

@@ -37,7 +37,7 @@ export class WechatStrategy extends BaseStrategy<WechatConfig> {
       return { status: 'pending', message: 'User is paying2' };
     }
 
-    console.log('有订单号了，微信支付成功啦～');
+    this.logger?.info('有订单号了，微信支付成功啦～');
 
     return this.success(`MOCK_11111`, { source: 'mock', elapsed });
   }

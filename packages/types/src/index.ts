@@ -22,3 +22,4 @@ export type { HttpClient, HttpResponse } from './http';
 
 // 6. 全局枚举
 export * from './enum';
+export * from './logger';

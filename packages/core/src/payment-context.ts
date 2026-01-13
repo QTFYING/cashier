@@ -1,9 +1,10 @@
-import type { HttpClient, PaymentContextState, PaymentPlugin, PayParams, PayPlatformType, PayResult, SDKConfig } from '@my-cashier/types';
+import type { HttpClient, Logger, PaymentContextState, PaymentPlugin, PayParams, PayPlatformType, PayResult, SDKConfig } from '@my-cashier/types';
 import { PayErrorCode, PaySt } from '@my-cashier/types';
 import { createDefaultFetcher, ScriptLoader } from '@my-cashier/utils';
 import { Store } from './cashier-store';
 import { EventBus } from './event-bus';
 import { InvokerFactory } from './invoker-factory';
+import { createLogger } from './logger';
 import { PayError } from './payment-error';
 import { PluginDriver } from './plugin-driver';
 import { EventBridgePlugin } from './plugins/event-bridge-plugin';
@@ -30,6 +31,7 @@ export class PaymentContext extends EventBus {
 
   // 4. 轮询管理器
   private poller: PollingManager;
+  private logger: Logger;
 
   // 5. 插件驱动器
   public driver: PluginDriver;
@@ -57,9 +59,11 @@ export class PaymentContext extends EventBus {
     const { http, invokerType, plugins = [], enableDefaultPlugins = true } = config;
 
     // 初始化基础依赖
+    // http 和 logger 均支持用户自主注入
     this.http = http ?? createDefaultFetcher();
     this.invokerType = invokerType;
     this.poller = new PollingManager();
+    this.logger = config.logger ? config.logger : createLogger({ debug: false, ...config });
     this.plugins = [...plugins];
 
     // Initialize Store
@@ -82,10 +86,12 @@ export class PaymentContext extends EventBus {
    */
   register(strategy: BaseStrategy): this {
     strategy.context = this;
+    strategy.logger = this.logger;
     if (this.strategies.has(strategy.name)) {
-      console.warn(`[PaymentContext] Strategy "${strategy.name}" overwritten.`);
+      this.logger.warn(`Strategy "${strategy.name}" overwritten.`);
     }
     this.strategies.set(strategy.name, strategy);
+    this.logger.debug(`Strategy "${strategy.name}" registered.`);
     return this;
   }
 
@@ -93,8 +99,12 @@ export class PaymentContext extends EventBus {
    * 注册插件 (use Plugin)
    */
   use(plugin: PaymentPlugin): this {
-    plugin.enforce === 'pre' ? this.plugins.unshift(plugin) : this.plugins.push(plugin);
-    this.driver = new PluginDriver(this.plugins);
+    if (plugin.enforce === 'pre') {
+      this.plugins.unshift(plugin);
+    } else {
+      this.plugins.push(plugin);
+    }
+    this.driver = new PluginDriver(this.plugins, this.logger);
     return this;
   }
 
@@ -165,7 +175,7 @@ export class PaymentContext extends EventBus {
         setTimeout(() => {
           // 确保有 OrderId，通常 Strategy 会透传回来，如果没有则降级使用 params 中的
           const orderId = result.transactionId || ctx.params.orderId;
-          console.log(`[PaymentContext] Auto start polling for order: ${orderId}`);
+          this.logger.info(`[PaymentContext] Auto start polling for order: ${orderId}`);
           this.startPolling(strategyName, orderId);
         }, 3000);
       }

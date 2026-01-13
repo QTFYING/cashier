@@ -2,6 +2,7 @@
 export { ScriptLoader } from '@my-cashier/utils';
 export { Store } from './cashier-store';
 export { InvokerFactory } from './invoker-factory';
+export { ConsoleLogger, createLogger } from './logger';
 export { PaymentContext } from './payment-context';
 export { PayError } from './payment-error';
 

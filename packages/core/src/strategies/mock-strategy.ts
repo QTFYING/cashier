@@ -26,7 +26,7 @@ export class MockStrategy extends BaseStrategy<MockStrategyConfig> {
    * Mock策略直接返回参数作为 Payload，模拟后端签名过程
    */
   async prepare(params: PayParams, _http: HttpClient): Promise<any> {
-    console.log(`[Mock Strategy] Prepare:`, params);
+    this.logger?.debug(`[Mock Strategy] Prepare:`, params);
     // 模拟网络延时
     if (this.config.latency) {
       await new Promise((resolve) => setTimeout(resolve, this.config.latency));
@@ -39,7 +39,7 @@ export class MockStrategy extends BaseStrategy<MockStrategyConfig> {
    * Mock策略直接根据配置返回成功或失败
    */
   process(rawResult: any): PayResult {
-    console.log(`[Mock Strategy] Process:`, rawResult);
+    this.logger?.debug(`[Mock Strategy] Process:`, rawResult);
     const scenario = this.config.scenario || 'success';
 
     switch (scenario) {
@@ -58,7 +58,7 @@ export class MockStrategy extends BaseStrategy<MockStrategyConfig> {
    * 实现查单逻辑
    */
   async getPaySt(orderId: string): Promise<PayResult> {
-    console.log(`[Mock Strategy] 查询订单状态: ${orderId}`);
+    this.logger?.debug(`[Mock Strategy] 查询订单状态: ${orderId}`);
 
     // 简单模拟：如果策略配置是 success，查单也返回 success
     if (this.config.scenario === 'success') {
