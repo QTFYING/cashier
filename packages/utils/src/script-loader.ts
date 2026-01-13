@@ -94,9 +94,4 @@ export class ScriptLoader {
   static clear() {
     this.cache.clear();
   }
-
-  static logger() {
-    // 简单的调试辅助
-    console.log('[ScriptLoader] Current Cache:', ScriptLoader.cache.keys());
-  }
 }

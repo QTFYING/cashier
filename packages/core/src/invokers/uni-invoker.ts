@@ -1,4 +1,4 @@
-import { type PayResult, PayErrorCode } from '@my-cashier/types';
+import { type Logger, type PayResult, PayErrorCode } from '@my-cashier/types';
 import { PayError } from '../payment-error';
 import { type PaymentInvoker } from './types';
 
@@ -6,7 +6,10 @@ import { type PaymentInvoker } from './types';
 declare const uni: any;
 
 export class UniAppInvoker implements PaymentInvoker {
-  constructor(private provider: string) {}
+  constructor(
+    private provider: string,
+    public logger?: Logger,
+  ) {}
 
   async invoke(orderInfo: any): Promise<PayResult> {
     return new Promise((resolve, reject) => {

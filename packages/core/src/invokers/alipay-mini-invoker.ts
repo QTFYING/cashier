@@ -1,4 +1,4 @@
-import { type PayResult, PayErrorCode } from '@my-cashier/types';
+import { type Logger, PayErrorCode, type PayResult } from '@my-cashier/types';
 import { PayError } from '../payment-error';
 import { type PaymentInvoker } from './types';
 
@@ -6,7 +6,10 @@ import { type PaymentInvoker } from './types';
 declare const my: any;
 
 export class AlipayMiniInvoker implements PaymentInvoker {
-  constructor(private channel: string) {}
+  constructor(
+    private provider: string,
+    public logger?: Logger,
+  ) {}
 
   async invoke(payload: any): Promise<PayResult> {
     return new Promise((resolve, reject) => {
@@ -15,7 +18,7 @@ export class AlipayMiniInvoker implements PaymentInvoker {
         return;
       }
 
-      console.log('[AlipayMiniInvoker] Calling my.tradePay');
+      this.logger?.debug('[AlipayMiniInvoker] Calling my.tradePay');
 
       // 支付宝小程序支付
       my.tradePay({

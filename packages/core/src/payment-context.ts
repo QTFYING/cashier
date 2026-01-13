@@ -1,4 +1,4 @@
-import type { HttpClient, Logger, PaymentContextState, PaymentPlugin, PayParams, PayPlatformType, PayResult, SDKConfig } from '@my-cashier/types';
+import type { HttpClient, PaymentContextState, PaymentPlugin, PayParams, PayPlatformType, PayResult, SDKConfig } from '@my-cashier/types';
 import { PayErrorCode, PaySt } from '@my-cashier/types';
 import { createDefaultFetcher, ScriptLoader } from '@my-cashier/utils';
 import { Store } from './cashier-store';
@@ -31,7 +31,7 @@ export class PaymentContext extends EventBus {
 
   // 4. 轮询管理器
   private poller: PollingManager;
-  private logger: Logger;
+  // private logger: Logger; // Inherited from EventBus
 
   // 5. 插件驱动器
   public driver: PluginDriver;
@@ -54,7 +54,8 @@ export class PaymentContext extends EventBus {
   private _isDestroyed = false;
 
   constructor(config: SDKConfig = {}) {
-    super();
+    const logger = config.logger ?? createLogger({ debug: false, ...config });
+    super(logger);
 
     const { http, invokerType, plugins = [], enableDefaultPlugins = true } = config;
 
@@ -62,8 +63,8 @@ export class PaymentContext extends EventBus {
     // http 和 logger 均支持用户自主注入
     this.http = http ?? createDefaultFetcher();
     this.invokerType = invokerType;
-    this.poller = new PollingManager();
-    this.logger = config.logger ? config.logger : createLogger({ debug: false, ...config });
+    this.poller = new PollingManager(logger);
+    // this.logger = logger; // Handled by super(logger)
     this.plugins = [...plugins];
 
     // Initialize Store
@@ -143,7 +144,7 @@ export class PaymentContext extends EventBus {
       ctx.apiResponse = signedPayload; // 存一份到上下文，供插件使用
 
       // 4.2 获取执行器 (IoC: 由 Context 决定使用哪个 Invoker)
-      const invoker = InvokerFactory.create(strategyName, this.invokerType);
+      const invoker = InvokerFactory.create(strategyName, this.invokerType, this.logger);
 
       // 4.3 唤起支付 (Invoke)
       const rawResult = await invoker.invoke(signedPayload);

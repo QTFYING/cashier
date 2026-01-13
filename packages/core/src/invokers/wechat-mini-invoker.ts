@@ -1,13 +1,16 @@
-import { PayErrorCode, PayResult } from "../../../types/src";
-import { PayError } from "../payment-error";
+import { type Logger, PayErrorCode, PayResult } from '@my-cashier/types';
+import { PayError } from '../payment-error';
 
-import type { PaymentInvoker } from "./types";
+import type { PaymentInvoker } from './types';
 
 // 声明 wx 全局对象，防止 TS 报错
 declare const wx: any;
 
 export class WechatMiniInvoker implements PaymentInvoker {
-  constructor(private channel: string) {}
+  constructor(
+    private channel: string,
+    public logger?: Logger,
+  ) {}
 
   async invoke(payload: any): Promise<PayResult> {
     return new Promise((resolve, reject) => {

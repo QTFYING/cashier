@@ -1,8 +1,11 @@
+import { Logger } from '@my-cashier/types';
+
 export interface PollerOptions {
   interval?: number; // 基础间隔 (ms)，默认 3000
   maxRetries?: number; // 最大重试次数，默认 0 (无限)
   timeout?: number; // 总超时时间 (ms)，默认 5分钟
   strategy?: 'fixed' | 'exponential'; // 轮询策略：固定 | 指数退避
+  logger?: Logger;
 }
 
 export class Poller {
@@ -45,8 +48,7 @@ export class Poller {
             return resolve(result);
           }
         } catch (error) {
-          // 可以在这里决定是否要把网络错误视为“继续轮询”的理由
-          console.warn('[Poller] Task failed, retrying...', error);
+          this.options.logger?.warn('[Poller] Task failed, retrying...', error);
         }
 
         // 5. 计算下一次延迟

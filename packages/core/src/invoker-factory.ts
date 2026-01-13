@@ -1,4 +1,4 @@
-import { type PayPlatformType } from '@my-cashier/types';
+import { type Logger, type PayPlatformType } from '@my-cashier/types';
 import { UniAppInvoker, WebInvoker } from './invokers';
 import { AlipayMiniInvoker } from './invokers/alipay-mini-invoker';
 import { type PaymentInvoker } from './invokers/types';
@@ -13,7 +13,7 @@ declare const my: any;
 export type InvokerMatcher = () => boolean;
 
 // 构造器类型
-export type InvokerConstructor = new (channel: PayPlatformType) => PaymentInvoker;
+export type InvokerConstructor = new (channel: PayPlatformType, logger?: Logger) => PaymentInvoker;
 
 // 注册项接口
 interface InvokerRegistration {
@@ -60,15 +60,15 @@ export class InvokerFactory {
   /**
    * 创建执行器实例
    */
-  static create(channel: PayPlatformType, runtime?: string): PaymentInvoker {
+  static create(channel: PayPlatformType, runtime?: string, logger?: Logger): PaymentInvoker {
     // Mode 1: 显式指定 (Explicit)
     // 场景：开发者明确知道自己在哪里，或者想强制使用某种模式
     if (runtime) {
       const item = this.registry.find((r) => r.type === runtime);
       if (item) {
-        return new item.InvokerClass(channel);
+        return new item.InvokerClass(channel, logger);
       }
-      console.warn(`[InvokerFactory] Runtime "${runtime}" not found, falling back to auto-detect.`);
+      logger?.warn(`[InvokerFactory] Runtime "${runtime}" not found.`);
     }
 
     // Mode 2: 自动探测 (Auto Detect)
@@ -77,7 +77,7 @@ export class InvokerFactory {
       try {
         if (item.matcher()) {
           // 调试模式下可以打印：console.log(`[InvokerFactory] Auto-detected: ${item.type}`);
-          return new item.InvokerClass(channel);
+          return new item.InvokerClass(channel, logger);
         }
       } catch {
         // 忽略探测过程中的报错 (防止访问未定义全局变量抛错)
@@ -86,6 +86,6 @@ export class InvokerFactory {
     }
 
     // 理论上永远不会到这里，因为 WebInvoker 是兜底
-    return new WebInvoker(channel);
+    return new WebInvoker(channel, logger);
   }
 }

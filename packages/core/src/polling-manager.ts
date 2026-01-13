@@ -1,4 +1,4 @@
-import type { PayResult } from '@my-cashier/types';
+import type { Logger, PayResult } from '@my-cashier/types';
 import { Poller } from '@my-cashier/utils';
 
 // 定义轮询的回调接口
@@ -19,6 +19,8 @@ export type PollingTask = () => Promise<PayResult>;
 export class PollingManager {
   private activePoller: Poller | null = null;
 
+  constructor(private logger?: Logger) {}
+
   /**
    * 启动轮询
    * @param task 具体的查单任务 (由调用方封装好)
@@ -29,7 +31,7 @@ export class PollingManager {
     // 1. 停止之前的轮询
     this.stop();
 
-    this.activePoller = new Poller({ interval });
+    this.activePoller = new Poller({ interval, logger: this.logger });
 
     this.activePoller
       .start(
@@ -52,7 +54,7 @@ export class PollingManager {
         }
       })
       .catch((err) => {
-        console.warn('[PollingManager] Polling stopped or failed:', err.message);
+        this.logger?.warn('[PollingManager] Polling stopped or failed:', err.message);
       })
       .finally(() => {
         // 触发结束回调

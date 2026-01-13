@@ -1,4 +1,4 @@
-import { PayErrorCode, PaymentChannelEnum, type PayPlatformType } from '@my-cashier/types';
+import { type Logger, PayErrorCode, PaymentChannelEnum, type PayPlatformType } from '@my-cashier/types';
 import { PayError } from '../payment-error';
 import type { PaymentInvoker } from './types';
 import { AlipayWebHandler, WebInvokerFactory, WechatWebHandler } from './web';
@@ -7,7 +7,10 @@ WebInvokerFactory.register(PaymentChannelEnum.WE_CHAT, new WechatWebHandler());
 WebInvokerFactory.register(PaymentChannelEnum.ALI_PAY, new AlipayWebHandler());
 
 export class WebInvoker implements PaymentInvoker {
-  constructor(private channel: PayPlatformType = 'other') {}
+  constructor(
+    private channel: PayPlatformType = 'other',
+    public logger?: Logger,
+  ) {}
 
   /**
    * 暴露静态注册方法，允许外部注册新的 Web 渠道

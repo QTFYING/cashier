@@ -1,4 +1,4 @@
-import type { PayParams, PayResult, PaySt } from '@my-cashier/types';
+import type { Logger, PayParams, PayResult, PaySt } from '@my-cashier/types';
 
 /**
  * 定义事件名与对应载荷(Payload)的映射关系
@@ -25,6 +25,8 @@ type EventCallback<K extends keyof SDKEventMap> = (payload: SDKEventMap[K]) => v
 export class EventBus {
   // 存储监听器：Map<事件名, Set<回调函数>>
   private tasks: Map<keyof SDKEventMap, Set<EventCallback<any>>> = new Map();
+
+  constructor(protected logger: Logger) {}
 
   /**
    * 订阅事件
@@ -72,7 +74,7 @@ export class EventBus {
         try {
           fn(payload);
         } catch (err) {
-          console.error(`[EventBus] Error in listener for "${event}":`, err);
+          this.logger.error(`[EventBus] Error in listener for "${event}":`, err);
         }
       });
     }
