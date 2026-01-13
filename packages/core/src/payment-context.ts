@@ -17,6 +17,8 @@ export interface PaymentState {
   result?: PayResult;
   loading: boolean;
   error?: Error;
+  /** 插件之间、轮询依赖的上文 */
+  preData?: Record<string, string>;
 }
 
 export class PaymentContext extends EventBus {
@@ -39,16 +41,8 @@ export class PaymentContext extends EventBus {
   // 6. 执行环境
   public readonly invokerType: SDKConfig['invokerType'];
 
-  // 9. 状态管理 (Store)
+  // 7. 状态管理 (Store)
   public readonly store: Store<PaymentState>;
-
-  // 兼容旧代码的 getter，指向 store.getState()
-  public get state(): PaymentState {
-    return this.store.getState();
-  }
-
-  // 7. 上下文快照
-  private _lastContextState: Record<string, any> = {} as PaymentContextState;
 
   // 8. 实例是否被销毁
   private _isDestroyed = false;
@@ -59,19 +53,13 @@ export class PaymentContext extends EventBus {
 
     const { http, invokerType, plugins = [], enableDefaultPlugins = true } = config;
 
-    // 初始化基础依赖
-    // http 和 logger 均支持用户自主注入
     this.http = http ?? createDefaultFetcher();
     this.invokerType = invokerType;
     this.poller = new PollingManager(logger);
-    // this.logger = logger; // Handled by super(logger)
     this.plugins = [...plugins];
 
-    // Initialize Store
-    this.store = new Store<PaymentState>({
-      status: 'idle',
-      loading: false,
-    });
+    // ！！！ 全局共享数据池 Store
+    this.store = new Store<PaymentState>({ status: 'idle', loading: false });
 
     // 处理插件
     if (enableDefaultPlugins) {
@@ -120,6 +108,7 @@ export class PaymentContext extends EventBus {
 
     // 0. 初始化运行时上下文
     this.updateState({ loading: true, error: undefined, status: 'idle', result: undefined });
+
     const ctx: PaymentContextState = { context: this, params, state: {} };
 
     try {
@@ -154,19 +143,7 @@ export class PaymentContext extends EventBus {
       ctx.result = result;
 
       // Stage 5: Settlement
-      if (result.status === 'success') {
-        await this.driver.implant('onSuccess', ctx, result);
-        this.updateState({ status: 'success', loading: false, result });
-      } else if (result.status === 'pending' || result.status === 'processing') {
-        await this.driver.implant('onStateChange', ctx, result);
-        this.updateState({ status: result.status, loading: false, result });
-      } else {
-        await this.driver.implant('onFail', ctx, result);
-        this.updateState({ status: 'fail', loading: false, result });
-      }
-
-      // [关键] 成功返回前，存档！
-      this._lastContextState = ctx.state;
+      await this.settle(ctx, result);
 
       // 自动轮询编排
       // 如果 Strategy 返回 pending (如获取到了二维码)，且参数指定了 autoPoll，则自动托管
@@ -187,13 +164,10 @@ export class PaymentContext extends EventBus {
       const errResult = error instanceof PayError ? error : new PayError(PayErrorCode.UNKNOWN, error.message || 'Unknown Error');
 
       await this.driver.implant('onFail', ctx, errResult);
-      this.updateState({ status: 'fail', error: errResult, loading: false });
+      this.updateState({ status: 'fail', error: errResult, loading: false, preData: ctx.state });
 
-      // [关键] 出错也要存档
-      this._lastContextState = ctx.state;
       throw errResult;
     } finally {
-      this.updateState({ loading: false });
       await this.driver.implant('onCompleted', ctx);
     }
   }
@@ -237,20 +211,13 @@ export class PaymentContext extends EventBus {
     return this.strategies.get(name);
   }
 
-  /**
-   * 获取最近一次的上下文状态 (用于状态恢复)
-   */
-  public getLastContextState(): Record<string, any> {
-    return this._lastContextState;
-  }
-
   // 创建轮询时的上下文快照
   private createPollingContext(orderId: string): PaymentContextState {
-    const lastState = this.getLastContextState();
+    const { preData = {} } = this.store.getState();
     return {
       context: this,
       params: { orderId, amount: 0 },
-      state: { ...lastState },
+      state: { ...preData },
       currentStatus: 'pending',
     };
   }
@@ -259,34 +226,43 @@ export class PaymentContext extends EventBus {
   private createPollingCallbacks(ctx: PaymentContextState) {
     return {
       onStatusChange: async (res: PayResult) => {
-        ctx.currentStatus = res.status;
-
         // Merge with previous result to preserve QR code (Action) if polling response is partial
         const prev = this.store.getState().result;
         const merged = { ...prev, ...res };
-
-        ctx.result = merged;
-        this.emit('statusChange', { status: res.status, result: merged });
-        await this.driver.implant('onStateChange', ctx, res.status);
-        this.updateState({ status: res.status, result: merged });
+        await this.settle(ctx, merged);
       },
       onSuccess: async (res: PayResult) => {
-        ctx.result = res;
-        this.emit('success', res);
-        await this.driver.implant('onSuccess', ctx, res);
-        this.updateState({ status: 'success', loading: false, result: res });
+        await this.settle(ctx, res);
       },
       onFail: async (res: PayResult) => {
-        ctx.result = res;
-        this.emit('fail', res);
-        await this.driver.implant('onFail', ctx, res);
-        this.updateState({ status: 'fail', loading: false, result: res });
+        await this.settle(ctx, res);
       },
       onFinished: async () => {
         await this.driver.implant('onCompleted', ctx);
         this.updateState({ loading: false });
       },
     };
+  }
+
+  /**
+   * 统一结算
+   */
+  private async settle(ctx: PaymentContextState, result: PayResult) {
+    ctx.result = result;
+    ctx.currentStatus = result.status;
+
+    if (result.status === 'success') {
+      await this.driver.implant('onSuccess', ctx, result);
+      this.emit('success', result);
+    } else if (result.status === 'pending' || result.status === 'processing') {
+      await this.driver.implant('onStateChange', ctx, result.status);
+      this.emit('statusChange', { status: result.status, result });
+    } else {
+      await this.driver.implant('onFail', ctx, result);
+      this.emit('fail', result);
+    }
+
+    this.updateState({ status: result.status, loading: false, result, preData: ctx.state });
   }
 
   /**
@@ -313,8 +289,7 @@ export class PaymentContext extends EventBus {
 
     ScriptLoader.clear();
 
-    // 5. 清空上下文状态 & 标识位
-    this._lastContextState = {};
+    // 5. 清空标识位
     this._isDestroyed = true;
   }
 }

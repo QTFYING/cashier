@@ -6,9 +6,9 @@ import type { PayParams, PayResult, PaySt } from './protocol';
  */
 export interface IPaymentContext {
   store: any;
-  on(event: string, fn: Function): void;
+  on(event: string, fn: (...args: any[]) => void): void;
   emit(event: string, payload?: any): void;
-  off(event: string, fn: Function): void;
+  off(event: string, fn: (...args: any[]) => void): void;
   [key: string]: any;
 }
 
@@ -35,8 +35,8 @@ export interface PaymentContextState {
   // 阶段 5: 最终归一化结果
   result?: PayResult;
 
-  // 共享状态 (用于插件间传值，类似 Koa ctx.state)
-  state: Record<string, any>;
+  // TODO: 共享状态 (用于插件间传值，类似 Koa ctx.state)
+  state?: Record<string, any>;
 }
 
 /**

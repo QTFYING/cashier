@@ -24,6 +24,7 @@ export class Poller {
     const { interval = 3000, timeout = 5 * 60 * 1000, strategy = 'fixed' } = this.options;
 
     const startTime = Date.now();
+
     let attempt = 0;
 
     return new Promise((resolve, reject) => {
@@ -61,7 +62,6 @@ export class Poller {
         this.timer = setTimeout(next, delay);
       };
 
-      // 立即执行第一次
       next();
     });
   }

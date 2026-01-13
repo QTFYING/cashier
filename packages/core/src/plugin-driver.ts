@@ -22,7 +22,7 @@ export class PluginDriver {
 
       try {
         // 核心：使用 Promise 竞争机制实现超时控制 (Manual Race for Cleanup)
-        await this.withTimeout((fn as Function).call(plugin, auditedCtx, ...args), timeoutMs, `Plugin [${plugin.name}] timed out after ${timeoutMs}ms`);
+        await this.withTimeout((fn as (ctx: any, ...args: any[]) => any).call(plugin, auditedCtx, ...args), timeoutMs, `Plugin [${plugin.name}] timed out after ${timeoutMs}ms`);
 
         // 检查是否被插件主动中断 (Abort Logic)
         if (ctx && ctx.aborted) {
