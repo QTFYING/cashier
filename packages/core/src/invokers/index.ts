@@ -5,4 +5,4 @@ export { WebInvoker } from './web-invoker';
 export { WechatMiniInvoker } from './wechat-mini-invoker';
 
 // types
-export { PaymentInvoker } from './types';
+export { type PaymentInvoker } from './types';

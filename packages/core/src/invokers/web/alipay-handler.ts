@@ -1,4 +1,4 @@
-import { ScriptLoader } from '../../../../utils/dist';
+import { ScriptLoader } from '@my-cashier/utils';
 import type { WebChannelHandler } from './types';
 
 declare const ap: any;

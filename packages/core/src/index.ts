@@ -6,7 +6,7 @@ export { PaymentContext, type PaymentState } from './payment-context';
 export { InvokerFactory } from './invoker-factory';
 
 // 导出策略基类（方便用户自定义扩展）
-export { ScriptLoader } from '../../utils/dist';
+export { ScriptLoader } from '@my-cashier/utils';
 export { PayError } from './payment-error';
 
 export { BaseStrategy } from './strategies/base-strategy';
@@ -15,7 +15,7 @@ export { BaseStrategy } from './strategies/base-strategy';
 export { AlipayStrategy, WechatStrategy } from './strategies';
 
 // 导出类型定义
-export * from '../../types/dist';
+export * from '@my-cashier/types';
 
 export * from './invokers';
 

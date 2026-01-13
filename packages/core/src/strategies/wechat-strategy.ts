@@ -1,4 +1,4 @@
-import { PaymentChannelEnum, type HttpClient, type PayParams, type PayResult } from '../../../types/dist';
+import { PaymentChannelEnum, type HttpClient, type PayParams, type PayResult } from '@my-cashier/types';
 import { WechatAdapter } from '../adapters';
 import { BaseStrategy } from './base-strategy';
 

@@ -10,7 +10,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@my-cashier/*": ["packages/*/src"]
+    }
   },
   "include": ["**/*.ts"],
   "exclude": ["node_modules", "dist", "**/dist", "packages/*/dist"]

@@ -1,6 +1,6 @@
 import { UniAppInvoker, WebInvoker } from "./invokers";
 import { AlipayMiniInvoker } from "./invokers/alipay-mini-invoker";
-import { PaymentInvoker, PayPlatformType } from "./invokers/types";
+import { type PaymentInvoker, PayPlatformType } from "./invokers/types";
 import { WechatMiniInvoker } from "./invokers/wechat-mini-invoker";
 
 

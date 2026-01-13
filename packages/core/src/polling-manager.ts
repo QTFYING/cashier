@@ -1,5 +1,5 @@
-import type { PayResult } from '../../types/dist';
-import { Poller } from '../../utils/dist';
+import type { PayResult } from '@my-cashier/types';
+import { Poller } from '@my-cashier/utils';
 
 // 定义轮询的回调接口
 export interface PollingCallbacks {

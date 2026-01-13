@@ -1,4 +1,4 @@
-import type { PayParams, PayResult } from '../../../types/dist';
+import type { PayParams, PayResult } from '@my-cashier/types';
 
 /**
  * 支付适配器

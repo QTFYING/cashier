@@ -1,4 +1,4 @@
-import { PaymentInvoker } from "./types";
+import { type PaymentInvoker } from "./types";
 
 
 declare const JSBridge: any;

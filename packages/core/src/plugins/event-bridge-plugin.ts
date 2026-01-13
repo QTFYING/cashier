@@ -1,4 +1,4 @@
-import type { PaymentPlugin } from '../../../types/dist';
+import type { PaymentPlugin } from '@my-cashier/types';
 import type { PaymentContext } from '../payment-context';
 
 export const EventBridgePlugin: PaymentPlugin = {

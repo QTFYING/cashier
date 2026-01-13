@@ -4,7 +4,7 @@
  * 字段名：通常叫 body (商品描述), out_trade_no (订单号), total_fee (金额), spbill_create_ip (IP)。
  * 附加数据：通常放在 attach 字段
  */
-import { PayErrorCode, type PayParams, type PayResult } from '../../../types/dist';
+import { PayErrorCode, type PayParams, type PayResult } from '@my-cashier/types';
 import { PayError } from '../payment-error';
 import type { PaymentAdapter } from './payment-adapter';
 import type { WechatPayload } from './types';

@@ -4,7 +4,7 @@
    字段名：通常叫 subject (订单标题), out_trade_no (订单号), total_amount (金额), product_code。
    透传：通常放在 passback_params (需要 UrlEncode)。
 */
-import type { PayParams, PayResult } from '../../../types/dist';
+import type { PayParams, PayResult } from '@my-cashier/types';
 import type { PaymentAdapter } from './payment-adapter';
 import type { AlipayPayload } from './types';
 

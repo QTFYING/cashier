@@ -1,4 +1,4 @@
-import type { HttpClient, PayParams, PayResult } from '../../../types/dist';
+import type { HttpClient, PayParams, PayResult } from '@my-cashier/types';
 import { AlipayAdapter } from '../adapters';
 import { BaseStrategy } from './base-strategy';
 

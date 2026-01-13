@@ -1,6 +1,6 @@
-import type { HttpClient, PaymentContextState, PaymentPlugin, PayParams, PayResult, SDKConfig } from '../../types/dist';
-import { PayErrorCode, PaySt } from '../../types/dist';
-import { createDefaultFetcher, ScriptLoader } from '../../utils/dist';
+import type { HttpClient, PaymentContextState, PaymentPlugin, PayParams, PayResult, SDKConfig } from '@my-cashier/types';
+import { PayErrorCode, PaySt } from '@my-cashier/types';
+import { createDefaultFetcher, ScriptLoader } from '@my-cashier/utils';
 import { Store } from './cashier-store';
 import { EventBus } from './event-bus';
 import { InvokerFactory } from './invoker-factory';

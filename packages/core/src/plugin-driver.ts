@@ -1,4 +1,4 @@
-import { type PaymentPlugin, PayErrorCode } from '../../types/dist';
+import { type PaymentPlugin, PayErrorCode } from '@my-cashier/types';
 import { PayError } from './payment-error';
 
 export class PluginDriver {

@@ -1,4 +1,4 @@
-import type { HttpClient, PayParams, PayResult } from '../../../types/dist';
+import type { HttpClient, PayParams, PayResult } from '@my-cashier/types';
 import { BaseStrategy } from './base-strategy';
 
 // 定义 Mock 特有的配置接口
