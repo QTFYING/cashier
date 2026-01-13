@@ -1,7 +1,7 @@
 // ==========================================  Level 1: Public Contract (核心类型)  ==========================================
 
 // 1. 协议 (Params, Result, Actions)
-export type { PayParams, PayResult, PaySt, PaymentAction, PaymentChannel, StrategyOptions } from './protocol';
+export type { PaymentAction, PaymentChannel, PayParams, PayResult, PaySt, StrategyOptions } from './protocol';
 
 // 2. 配置 (Config)
 export type { SDKConfig } from './config';

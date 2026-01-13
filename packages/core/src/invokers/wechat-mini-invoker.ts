@@ -1,6 +1,7 @@
-import { type PayResult, PayErrorCode } from '../../../types/dist';
-import { PayError } from '../payment-error';
-import type { PaymentInvoker } from './types';
+import { PayErrorCode, PayResult } from "../../../types/src";
+import { PayError } from "../payment-error";
+
+import type { PaymentInvoker } from "./types";
 
 // 声明 wx 全局对象，防止 TS 报错
 declare const wx: any;

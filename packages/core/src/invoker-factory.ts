@@ -1,4 +1,8 @@
-import type { PaymentInvoker, PayPlatformType } from './invokers/types';
+import { UniAppInvoker, WebInvoker } from "./invokers";
+import { AlipayMiniInvoker } from "./invokers/alipay-mini-invoker";
+import { PaymentInvoker, PayPlatformType } from "./invokers/types";
+import { WechatMiniInvoker } from "./invokers/wechat-mini-invoker";
+
 
 // 全局变量声明
 declare const uni: any;
@@ -23,7 +27,22 @@ export class InvokerFactory {
   // 核心注册表
   private static registry: InvokerRegistration[] = [];
 
-  // [Tree Shaking] 自动注册逻辑已移除，由外部按需注册
+  // 静态初始化块 (自动注册内置环境)
+  static {
+    // 1. UniApp (跨端框架，优先级最高 100)
+    this.register('uniapp', UniAppInvoker, () => typeof uni !== 'undefined' && uni.requestPayment, 100);
+
+    // 2. 支付宝小程序 (优先级 50)
+    this.register('alipay-mini', AlipayMiniInvoker, () => typeof my !== 'undefined' && my.tradePay, 50);
+
+    // 3. 微信小程序 (优先级 50)
+    // 注意：wx 变量最容易被某些 Web 库 polyfill，所以优先级放低一点或放在 UniApp 之后
+    this.register('wechat-mini', WechatMiniInvoker, () => typeof wx !== 'undefined' && wx.requestPayment, 50);
+
+    // 4. Web (兜底，优先级 0)
+    // matcher 永远返回 true，作为最后的 fallback
+    this.register('web', WebInvoker, () => true, 0);
+  }
 
   /**
    * [新增] 注册自定义 Invoker
@@ -66,8 +85,7 @@ export class InvokerFactory {
       }
     }
 
-    // 理论上永远不会到这里，如果没有任何匹配的 Invoker，说明用户没注册
-    // [Tree Shaking] 之前这里会 return new WebInvoker()，现在直接抛错，或者返回 undefined
-    throw new Error('[InvokerFactory] No suitable invoker found. Did you forget to register one?');
+    // 理论上永远不会到这里，因为 WebInvoker 是兜底
+    return new WebInvoker(channel);
   }
 }

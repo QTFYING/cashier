@@ -8,6 +8,7 @@ export { InvokerFactory } from './invoker-factory';
 // 导出策略基类（方便用户自定义扩展）
 export { ScriptLoader } from '../../utils/dist';
 export { PayError } from './payment-error';
+
 export { BaseStrategy } from './strategies/base-strategy';
 
 // 导出内置策略
@@ -15,3 +16,6 @@ export { AlipayStrategy, WechatStrategy } from './strategies';
 
 // 导出类型定义
 export * from '../../types/dist';
+
+export * from './invokers';
+

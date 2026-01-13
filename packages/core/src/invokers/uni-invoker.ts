@@ -1,5 +1,6 @@
-import { type PaymentInvoker, type PayResult, PayErrorCode } from '../../../types/dist';
+import { type PayResult, PayErrorCode } from '../../../types/dist';
 import { PayError } from '../payment-error';
+import { PaymentInvoker } from './types';
 
 // 声明 uni 对象，防止 TS 报错
 declare const uni: any;
