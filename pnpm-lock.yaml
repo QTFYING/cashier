@@ -21,14 +21,14 @@ importers:
         specifier: ^1.0.0
         version: 1.6.1(@types/node@12.20.55)
 
-  packages/pay-core:
+  packages/core:
     dependencies:
       '@my-cashier/types':
         specifier: workspace:*
-        version: link:../pay-types
+        version: link:../types
       '@my-cashier/utils':
         specifier: workspace:*
-        version: link:../pay-utils
+        version: link:../utils
     devDependencies:
       tsup:
         specifier: ^8.0.0
@@ -37,7 +37,7 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/pay-types:
+  packages/types:
     devDependencies:
       tsup:
         specifier: ^8.0.0
@@ -46,11 +46,11 @@ importers:
         specifier: ^5.0.0
         version: 5.9.3
 
-  packages/pay-utils:
+  packages/utils:
     dependencies:
       '@my-cashier/types':
         specifier: workspace:*
-        version: link:../pay-types
+        version: link:../types
     devDependencies:
       tsup:
         specifier: ^8.0.0

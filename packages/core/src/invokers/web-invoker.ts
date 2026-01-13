@@ -1,6 +1,6 @@
-import { PayErrorCode, PaymentChannelEnum } from '@my-cashier/types';
+import { PayErrorCode, PaymentChannelEnum, type PayPlatformType } from '@my-cashier/types';
 import { PayError } from '../payment-error';
-import type { PaymentInvoker, PayPlatformType } from './types';
+import type { PaymentInvoker } from './types';
 import { AlipayWebHandler, WebInvokerFactory, WechatWebHandler } from './web';
 
 WebInvokerFactory.register(PaymentChannelEnum.WE_CHAT, new WechatWebHandler());

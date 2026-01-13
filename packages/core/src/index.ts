@@ -1,21 +1,18 @@
-// 导出核心类
-export { Store } from './cashier-store';
-export { PaymentContext, type PaymentState } from './payment-context';
-
-// 导出 Invoker 工厂,用户可自行注册Invoker，如·：uni.requestPayment
-export { InvokerFactory } from './invoker-factory';
-
-// 导出策略基类（方便用户自定义扩展）
+// Runtime Core (Classes & Functions)
 export { ScriptLoader } from '@my-cashier/utils';
+export { Store } from './cashier-store';
+export { InvokerFactory } from './invoker-factory';
+export { PaymentContext } from './payment-context';
 export { PayError } from './payment-error';
 
+// Strategies
+export { AlipayStrategy, WechatStrategy } from './strategies';
 export { BaseStrategy } from './strategies/base-strategy';
 
-// 导出内置策略
-export { AlipayStrategy, WechatStrategy } from './strategies';
+// Invokers
+export { AlipayMiniInvoker, BridgeInvoker, UniAppInvoker, WebInvoker, WechatMiniInvoker } from './invokers';
 
-// 导出类型定义
+// Type Definitions
 export * from '@my-cashier/types';
-
-export * from './invokers';
-
+export type { PaymentInvoker } from './invokers';
+export type { PaymentState } from './payment-context';

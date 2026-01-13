@@ -1,10 +1,9 @@
-import type { HttpClient, PaymentContextState, PaymentPlugin, PayParams, PayResult, SDKConfig } from '@my-cashier/types';
+import type { HttpClient, PaymentContextState, PaymentPlugin, PayParams, PayPlatformType, PayResult, SDKConfig } from '@my-cashier/types';
 import { PayErrorCode, PaySt } from '@my-cashier/types';
 import { createDefaultFetcher, ScriptLoader } from '@my-cashier/utils';
 import { Store } from './cashier-store';
 import { EventBus } from './event-bus';
 import { InvokerFactory } from './invoker-factory';
-import { PayPlatformType } from './invokers/types';
 import { PayError } from './payment-error';
 import { PluginDriver } from './plugin-driver';
 import { EventBridgePlugin } from './plugins/event-bridge-plugin';

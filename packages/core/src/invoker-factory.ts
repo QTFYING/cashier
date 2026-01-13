@@ -1,8 +1,8 @@
-import { UniAppInvoker, WebInvoker } from "./invokers";
-import { AlipayMiniInvoker } from "./invokers/alipay-mini-invoker";
-import { type PaymentInvoker, PayPlatformType } from "./invokers/types";
-import { WechatMiniInvoker } from "./invokers/wechat-mini-invoker";
-
+import { type PayPlatformType } from '@my-cashier/types';
+import { UniAppInvoker, WebInvoker } from './invokers';
+import { AlipayMiniInvoker } from './invokers/alipay-mini-invoker';
+import { type PaymentInvoker } from './invokers/types';
+import { WechatMiniInvoker } from './invokers/wechat-mini-invoker';
 
 // 全局变量声明
 declare const uni: any;
