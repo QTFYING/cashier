@@ -1,5 +1,5 @@
-import type { HttpClient, PaymentContextState, PaymentPlugin, PayParams, PayPlatformType, PayResult, SDKConfig } from '@my-cashier/types';
-import { PayErrorCode, PaySt } from '@my-cashier/types';
+import type { HttpClient, PaymentContextState, PaymentPlugin, PaymentState, PayParams, PayPlatformType, PayResult, SDKConfig } from '@my-cashier/types';
+import { PayErrorCode } from '@my-cashier/types';
 import { createDefaultFetcher, createLogger, ScriptLoader, Store } from '@my-cashier/utils';
 import { EventBus } from './event-bus';
 import { InvokerFactory } from './invoker-factory';
@@ -10,14 +10,6 @@ import { PollingManager } from './polling-manager';
 import type { BaseStrategy } from './strategies/base-strategy';
 
 // 9. 状态管理 (PaymentState definition)
-export interface PaymentState {
-  status: PaySt | 'idle';
-  result?: PayResult;
-  loading: boolean;
-  error?: Error;
-  /** 插件之间、轮询依赖的上文 */
-  preData?: Record<string, string>;
-}
 
 export class PaymentContext extends EventBus {
   // 1. 策略池

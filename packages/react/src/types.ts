@@ -1,4 +1,5 @@
-import type { PayError, PaymentAction, PaymentPlugin, PayParams, PayResult, PaySt } from '@my-cashier/core';
+import type { PayError } from '@my-cashier/core';
+import type { PayParams, PayResult, PaySt, PaymentAction, PaymentPlugin } from '@my-cashier/types';
 
 // --- 入参配置 ---
 export interface UseCashierOptions {
@@ -28,3 +29,9 @@ export interface CashierState {
   error: PayError | null;
   action: PaymentAction | null;
 }
+
+export type PayErrorAction =
+  | { type: 'silent'; message: string; error: PayError }
+  | { type: 'retry'; message: string; error: PayError }
+  | { type: 'fatal'; message: string; error: PayError }
+  | { type: 'unknown'; message: string; error: unknown };

@@ -113,3 +113,16 @@ export interface PaymentPlugin {
    */
   onCompleted?(ctx: PaymentContextState): Promise<void> | void;
 }
+
+/**
+ * 核心支付状态 (Store State)
+ * UI 层和 Core 层共享的数据结构
+ */
+export interface PaymentState {
+  status: PaySt | 'idle';
+  result?: PayResult;
+  loading: boolean;
+  error?: Error;
+  /** 插件之间、轮询依赖的上文 */
+  preData?: Record<string, string>;
+}

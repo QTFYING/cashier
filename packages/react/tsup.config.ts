@@ -5,6 +5,6 @@ export default defineConfig({
   format: ['cjs', 'esm'],
   dts: true,
   minify: true,
-  external: ['react', 'react-dom', '@my-cashier/core', '@my-cashier/types'],
+  external: ['react', 'react-dom', '@my-cashier/core', '@my-cashier/types', '@my-cashier/utils'],
   clean: true,
 });

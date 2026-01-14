@@ -21,7 +21,8 @@
   },
   "dependencies": {
     "@my-cashier/core": "workspace:*",
-    "@my-cashier/types": "workspace:*"
+    "@my-cashier/types": "workspace:*",
+    "@my-cashier/utils": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
