@@ -45,6 +45,9 @@ importers:
       '@my-cashier/types':
         specifier: workspace:*
         version: link:../types
+      '@my-cashier/utils':
+        specifier: workspace:*
+        version: link:../utils
     devDependencies:
       '@types/react':
         specifier: ^18.0.0

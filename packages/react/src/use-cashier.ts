@@ -1,8 +1,8 @@
-import { PayError } from '@my-cashier/core';
-import type { PayParams, PayResult, PaymentState } from '@my-cashier/types';
+import { PayError, PaymentContext } from '@my-cashier/core';
+import { ErrorCategory, PayParams, PayResult, PaymentState } from '@my-cashier/types';
 import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { CashierContext } from './cashier-context';
-import type { PayErrorAction, UseCashierOptions } from './types';
+import type { UseCashierOptions } from './types';
 import { useStore } from './use-store';
 
 /**
@@ -53,7 +53,7 @@ function useCashierContext() {
  * 状态映射 Hook
  * 将 Store 的原始状态转换为 UI 友好的 derived state
  */
-function useCashierState(cashier: any) {
+function useCashierState(cashier: PaymentContext) {
   const storeState = useStore<PaymentState>(cashier.store);
   return useMemo(() => {
     const isProcessing = storeState.status === 'processing' || storeState.status === 'pending';
@@ -70,7 +70,7 @@ function useCashierState(cashier: any) {
 /**
  * 插件自动注册 Hook
  */
-function useInjectPlugins(cashier: any, plugins: UseCashierOptions['plugins']) {
+function useInjectPlugins(cashier: PaymentContext, plugins: UseCashierOptions['plugins']) {
   const registeredRef = useRef(false);
 
   useEffect(() => {
@@ -84,7 +84,7 @@ function useInjectPlugins(cashier: any, plugins: UseCashierOptions['plugins']) {
  * Event Bus Hook
  * 将 SDK 的 EventBus 事件通过回调透传给 UI
  */
-function useEventBus(cashier: any, options: UseCashierOptions) {
+function useEventBus(cashier: PaymentContext, options: UseCashierOptions) {
   const optionsRef = useRef(options);
 
   useEffect(() => {
@@ -94,16 +94,18 @@ function useEventBus(cashier: any, options: UseCashierOptions) {
   useEffect(() => {
     if (!cashier) return;
 
-    const handlers = {
-      success: (res: PayResult) => optionsRef.current.onSuccess?.(res),
-      fail: (err: any) => optionsRef.current.onError?.(err),
-      statusChange: ({ status, result }: any) => optionsRef.current.onStatusChange?.(status, result),
-    };
+    const onSuccess = (res: PayResult) => optionsRef.current.onSuccess?.(res);
+    const onFail = (err: any) => optionsRef.current.onError?.(err);
+    const onStatusChange = ({ status, result }: any) => optionsRef.current.onStatusChange?.(status, result);
 
-    Object.entries(handlers).forEach(([evt, fn]) => cashier.on(evt, fn));
+    cashier.on('success', onSuccess);
+    cashier.on('fail', onFail);
+    cashier.on('statusChange', onStatusChange);
 
     return () => {
-      Object.entries(handlers).forEach(([evt, fn]) => cashier.off(evt, fn));
+      cashier.off('success', onSuccess);
+      cashier.off('fail', onFail);
+      cashier.off('statusChange', onStatusChange);
     };
   }, [cashier]);
 }
@@ -112,13 +114,13 @@ function useEventBus(cashier: any, options: UseCashierOptions) {
  * 错误类型推断工具
  * (Pure Function)
  */
-function inferErrorType(err: any): PayErrorAction {
+function inferErrorType(err: any): { type: keyof typeof ErrorCategory; desc: string; error: any } {
   if (err instanceof PayError) {
-    if (err.isSilent) return { type: 'silent', message: err.message, error: err };
-    if (err.shouldRetry) return { type: 'retry', message: err.message, error: err };
-    return { type: 'fatal', message: err.message, error: err };
+    if (err.isSilent) return { type: ErrorCategory.SILENT, desc: 'Silent error. No need to handle the page, but attention is required.', error: err };
+    if (err.shouldRetry) return { type: ErrorCategory.RETRYABLE, desc: 'You can initiate a retry.', error: err };
+    return { type: ErrorCategory.FATAL, desc: 'You need to handle it yourself.', error: err };
   }
 
-  const message = err instanceof Error ? err.message : typeof err === 'string' ? err : '系统异常';
-  return { type: 'unknown', message, error: err };
+  const message = err instanceof Error ? err.message : typeof err === 'string' ? err : 'System exception.';
+  return { type: ErrorCategory.UNKNOWN, desc: message, error: err };
 }

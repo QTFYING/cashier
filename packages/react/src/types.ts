@@ -24,14 +24,8 @@ export interface CashierActions {
 
 export interface CashierState {
   loading: boolean;
-  status: PaySt | null;
-  result: PayResult | null;
-  error: PayError | null;
-  action: PaymentAction | null;
+  status?: PaySt;
+  result?: PayResult;
+  error?: PayError;
+  action?: PaymentAction;
 }
-
-export type PayErrorAction =
-  | { type: 'silent'; message: string; error: PayError }
-  | { type: 'retry'; message: string; error: PayError }
-  | { type: 'fatal'; message: string; error: PayError }
-  | { type: 'unknown'; message: string; error: unknown };

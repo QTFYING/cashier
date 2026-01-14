@@ -1,5 +1,6 @@
 // Runtime Core (Classes & Functions)
-export { FactoryLogger, ScriptLoader, Store, createLogger } from '@my-cashier/utils';
+export { createLogger, FactoryLogger, ScriptLoader, Store } from '@my-cashier/utils';
+export type { SDKEventMap } from './event-bus';
 export { InvokerFactory } from './invoker-factory';
 export { PaymentContext } from './payment-context';
 export { PayError } from './payment-error';
