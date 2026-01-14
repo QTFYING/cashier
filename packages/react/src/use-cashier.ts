@@ -1,7 +1,6 @@
 import type { PayParams, PayResult } from '@my-cashier/core';
 import { useCallback, useContext, useEffect, useRef } from 'react';
 import { CashierContext } from './cashier-context';
-import { PaymentStatusEnum } from './enums';
 import type { UseCashierOptions } from './types';
 import { useStore } from './use-store';
 
@@ -85,7 +84,6 @@ export function useCashier(options: UseCashierOptions = {}) {
     result: state.result,
     error: state.error,
     status: state.status,
-    statusText: state.status ? PaymentStatusEnum[state.status] : '',
 
     // 方法
     pay,
