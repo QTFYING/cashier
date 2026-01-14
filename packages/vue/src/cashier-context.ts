@@ -1,4 +1,4 @@
-import type { PaymentContext } from '@/sdk/cashier2';
+import type { PaymentContext } from '@my-cashier/core';
 import type { InjectionKey } from 'vue';
 import { inject, provide } from 'vue';
 

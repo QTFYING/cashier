@@ -1,4 +1,4 @@
-import { AlipayStrategy, PaymentContext, WechatStrategy, type SDKConfig } from '@/sdk/cashier2';
+import { AlipayStrategy, PaymentContext, WechatStrategy, type SDKConfig } from '@my-cashier/core';
 import { onBeforeUnmount, onMounted, provide } from 'vue';
 import { CashierKey } from './cashier-context';
 import { AuthPlugin, LoadingPlugin, LoggerPlugin } from './plugin';
@@ -16,9 +16,7 @@ export function useCashierProvider({ config, client }: CashierProviderOptions) {
   provide(CashierKey, { cashier: cashierInstance });
 
   onMounted(() => {
-    cashierInstance
-      .register(new WechatStrategy({ appId: 'wx888888', mchId: '123456' }))
-      .register(new AlipayStrategy({ appId: '2021000000', privateKey: '...' }));
+    cashierInstance.register(new WechatStrategy({ appId: 'wx888888', mchId: '123456' })).register(new AlipayStrategy({ appId: '2021000000', privateKey: '...' }));
 
     cashierInstance.use(LoggerPlugin).use(LoadingPlugin).use(AuthPlugin);
   });

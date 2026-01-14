@@ -1,13 +1,14 @@
-import type { PaymentPlugin } from '@/sdk/cashier2';
+import type { PaymentPlugin } from '@my-cashier/core';
 
 export const LoggerPlugin: PaymentPlugin = {
   name: 'logger',
   onBeforePay(ctx) {
+    ctx.state = ctx.state || {};
     ctx.state.startTime = Date.now(); // 记录开始时间
     console.log('>>> [Logger Plugin] 计时开始');
   },
   onSuccess(ctx, res) {
-    const duration = Date.now() - ctx.state.startTime;
+    const duration = Date.now() - (ctx.state?.startTime || Date.now());
     console.log(`✅ [Logger Plugin] 支付成功! 耗时: ${duration}ms`, res.transactionId);
     // Analytics.report('PAY_SUCCESS', ...)
   },
