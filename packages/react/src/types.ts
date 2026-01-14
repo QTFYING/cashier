@@ -18,7 +18,6 @@ export interface UseCashierOptions {
 
 // --- 出参接口 ---
 export interface CashierActions {
-  // 核心动作
   pay: (strategyName: string, params: PayParams) => Promise<PayResult>;
   reset: () => void;
 }

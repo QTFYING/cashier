@@ -7,6 +7,7 @@ import { useStore } from './use-store';
 
 export function useCashier(options: UseCashierOptions = {}) {
   const context = useContext(CashierContext);
+  const pluginsRef = useRef(options.plugins);
 
   if (!context) {
     throw new Error('useCashier must be used within a CashierProvider');
@@ -30,6 +31,12 @@ export function useCashier(options: UseCashierOptions = {}) {
     error: (storeState.error as any) || null,
     action: storeState.result?.action || null,
   };
+
+  useEffect(() => {
+    if (pluginsRef.current && pluginsRef.current.length > 0) {
+      pluginsRef.current.forEach((p) => cashier.use(p));
+    }
+  }, [cashier]);
 
   useEffect(() => {
     optionsRef.current = options;
