@@ -1,11 +1,11 @@
 import { type Logger, type SDKConfig } from '@my-cashier/types';
 
 /**
- * 默认的 Console Logger 实现
+ * 默认的标准 Logger 实现 (FactoryLogger)
  * 仅在 debug 模式下输出 Info/Debug 日志
  * 生产环境下只保留 Warn/Error
  */
-export class ConsoleLogger implements Logger {
+export class FactoryLogger implements Logger {
   constructor(private isDebugMode: boolean = false) {}
 
   info(message: string, ...args: any[]) {
@@ -31,11 +31,11 @@ export class ConsoleLogger implements Logger {
 
 /**
  * 工厂函数：创建 Logger 实例
- * 优先级：用户自定义 Logger > 默认 ConsoleLogger
+ * 优先级：用户自定义 Logger > 默认 FactoryLogger
  */
 export function createLogger(config: SDKConfig): Logger {
   if (config.logger) {
     return config.logger;
   }
-  return new ConsoleLogger(config.debug);
+  return new FactoryLogger(config.debug);
 }

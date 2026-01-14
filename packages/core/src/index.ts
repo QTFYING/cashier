@@ -1,7 +1,6 @@
 // Runtime Core (Classes & Functions)
-export { ScriptLoader, Store } from '@my-cashier/utils';
+export { createLogger, FactoryLogger, ScriptLoader, Store } from '@my-cashier/utils';
 export { InvokerFactory } from './invoker-factory';
-export { ConsoleLogger, createLogger } from './logger';
 export { PaymentContext } from './payment-context';
 export { PayError } from './payment-error';
 
