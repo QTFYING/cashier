@@ -1,4 +1,4 @@
-import type { PayParams, PayResult } from '@/sdk/cashier2';
+import type { PayParams, PayResult } from '@my-cashier/core';
 import { computed, onBeforeUnmount, reactive, ref, toRefs, watch } from 'vue';
 import { useCashierContext } from './cashier-context';
 import { PaymentStatusEnum } from './enums';
@@ -60,7 +60,7 @@ export function useCashier(options: UseCashierOptions = {}) {
       const res = await cashier.execute(strategyName, params);
       // SDK 执行成功不代表支付成功（可能是唤起扫码），同步状态
       state.result = res;
-      state.action = res.action;
+      state.action = res.action ?? null;
       state.loading = false;
       return res;
     } catch (err: any) {
