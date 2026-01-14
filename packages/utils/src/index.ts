@@ -3,4 +3,4 @@ export * from './fetcher';
 export * from './poller';
 export * from './script-loader';
 export * from './sign';
-
+export * from './store';
