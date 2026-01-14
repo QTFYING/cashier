@@ -1,3 +1,4 @@
+export * from './emitter';
 export * from './env';
 export * from './fetcher';
 export * from './logger';
