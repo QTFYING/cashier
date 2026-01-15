@@ -1,10 +1,14 @@
 import { type Logger, PayErrorCode, PayResult } from '@my-cashier/types';
 import { PayError } from '../payment-error';
-
+import { WechatTypeGlobal } from '../types/platform-shim';
 import type { PaymentInvoker } from './types';
 
-// 声明 wx 全局对象，防止 TS 报错
-declare const wx: any;
+/**
+ * 声明 wx 全局对象。
+ * 使用自定义的 WechatTypeGlobal Shim 而不是 @types/wechat-miniprogram
+ * 是为了避免引入外部依赖以及防止全局命名空间污染，确保核心包的轻量与独立性。
+ */
+declare const wx: WechatTypeGlobal;
 
 export class WechatMiniInvoker implements PaymentInvoker {
   constructor(

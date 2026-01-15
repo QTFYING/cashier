@@ -88,6 +88,14 @@ export class PaymentContext extends EventBus {
   }
 
   /**
+   * 注入 Invoker
+   */
+  injectInvoker(type: string, InvokerClass: any, matcher: (channel: string) => boolean, priority: number = 0): this {
+    InvokerFactory.register(type, InvokerClass, matcher, priority);
+    return this;
+  }
+
+  /**
    * 核心执行器
    */
   async execute(strategyName: PayPlatformType, params: PayParams): Promise<PayResult> {

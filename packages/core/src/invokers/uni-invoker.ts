@@ -1,9 +1,10 @@
 import { type Logger, type PayResult, PayErrorCode } from '@my-cashier/types';
 import { PayError } from '../payment-error';
+import { UniAppTypeGlobal } from '../types/platform-shim';
 import { type PaymentInvoker } from './types';
 
 // 声明 uni 对象，防止 TS 报错
-declare const uni: any;
+declare const uni: UniAppTypeGlobal;
 
 export class UniAppInvoker implements PaymentInvoker {
   constructor(

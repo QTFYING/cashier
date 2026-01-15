@@ -1,16 +1,8 @@
 import { type Logger, type PayPlatformType } from '@my-cashier/types';
-import { UniAppInvoker, WebInvoker } from './invokers';
-import { AlipayMiniInvoker } from './invokers/alipay-mini-invoker';
 import { type PaymentInvoker } from './invokers/types';
-import { WechatMiniInvoker } from './invokers/wechat-mini-invoker';
-
-// 全局变量声明
-declare const uni: any;
-declare const wx: any;
-declare const my: any;
 
 // 探测器函数：返回 true 表示当前环境匹配
-export type InvokerMatcher = () => boolean;
+export type InvokerMatcher = (channel: string) => boolean;
 
 // 构造器类型
 export type InvokerConstructor = new (channel: PayPlatformType, logger?: Logger) => PaymentInvoker;
@@ -26,23 +18,6 @@ interface InvokerRegistration {
 export class InvokerFactory {
   // 核心注册表
   private static registry: InvokerRegistration[] = [];
-
-  // 静态初始化块 (自动注册内置环境)
-  static {
-    // 1. UniApp (跨端框架，优先级最高 100)
-    this.register('uniapp', UniAppInvoker, () => typeof uni !== 'undefined' && uni.requestPayment, 100);
-
-    // 2. 支付宝小程序 (优先级 50)
-    this.register('alipay-mini', AlipayMiniInvoker, () => typeof my !== 'undefined' && my.tradePay, 50);
-
-    // 3. 微信小程序 (优先级 50)
-    // 注意：wx 变量最容易被某些 Web 库 polyfill，所以优先级放低一点或放在 UniApp 之后
-    this.register('wechat-mini', WechatMiniInvoker, () => typeof wx !== 'undefined' && wx.requestPayment, 50);
-
-    // 4. Web (兜底，优先级 0)
-    // matcher 永远返回 true，作为最后的 fallback
-    this.register('web', WebInvoker, () => true, 0);
-  }
 
   /**
    * [新增] 注册自定义 Invoker
@@ -75,7 +50,8 @@ export class InvokerFactory {
     // 遍历注册表，找到第一个匹配的环境
     for (const item of this.registry) {
       try {
-        if (item.matcher()) {
+        if (item.matcher(channel)) {
+          // 将 channel 透传给 matcher
           // 调试模式下可以打印：console.log(`[InvokerFactory] Auto-detected: ${item.type}`);
           return new item.InvokerClass(channel, logger);
         }
@@ -85,7 +61,7 @@ export class InvokerFactory {
       }
     }
 
-    // 理论上永远不会到这里，因为 WebInvoker 是兜底
-    return new WebInvoker(channel, logger);
+    // 用户没有注册任何 invoker
+    throw new Error(`[InvokerFactory] No matching invoker found for channel: ${channel}. Please check if you have registered the correct invoker.`);
   }
 }

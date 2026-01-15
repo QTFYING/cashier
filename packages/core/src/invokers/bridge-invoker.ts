@@ -1,7 +1,7 @@
-import { type PaymentInvoker } from "./types";
+import { JSBridgeGlobal } from '../types/platform-shim';
+import { type PaymentInvoker } from './types';
 
-
-declare const JSBridge: any;
+declare const JSBridge: JSBridgeGlobal;
 
 /**
  * webview调用原生调起支付控件

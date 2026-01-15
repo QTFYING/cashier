@@ -37,6 +37,9 @@ export interface PaymentContextState {
 
   // TODO: 共享状态 (用于插件间传值，类似 Koa ctx.state)
   state?: Record<string, any>;
+
+  // 中断标志
+  aborted?: boolean;
 }
 
 /**
