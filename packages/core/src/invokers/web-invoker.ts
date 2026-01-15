@@ -12,6 +12,9 @@ export class WebInvoker implements PaymentInvoker {
     public logger?: Logger,
   ) {}
 
+  static type = 'web';
+  static matcher = (_channel: string) => typeof window !== 'undefined' && typeof document !== 'undefined';
+
   /**
    * 暴露静态注册方法，允许外部注册新的 Web 渠道
    * 示例: WebInvoker.register('stripe', new StripeWebHandler());

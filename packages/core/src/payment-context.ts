@@ -89,9 +89,23 @@ export class PaymentContext extends EventBus {
 
   /**
    * 注入 Invoker
+   * 方式 1: injectInvoker(InvokerClass) - 读取静态 type/matcher (推荐)
+   * 方式 2: injectInvoker(type, InvokerClass) - 覆盖 type, 沿用静态 matcher
+   * 方式 3: injectInvoker(type, InvokerClass, matcher) - 全覆盖 (兼容旧版)
    */
-  injectInvoker(type: string, InvokerClass: any, matcher: (channel: string) => boolean, priority: number = 0): this {
-    InvokerFactory.register(type, InvokerClass, matcher, priority);
+  injectInvoker(InvokerClass: any): this;
+  injectInvoker(type: string, InvokerClass: any): this;
+  injectInvoker(typeOrClass: string | any, InvokerClassOrMatcher?: any, matcher?: (channel: string) => boolean): this {
+    // Case 1: injectInvoker(InvokerClass)
+    if (typeof typeOrClass !== 'string') {
+      InvokerFactory.register(typeOrClass);
+      return this;
+    }
+
+    const type = typeOrClass;
+    const InvokerClass = InvokerClassOrMatcher;
+
+    InvokerFactory.register(InvokerClass, { type, matcher: matcher! });
     return this;
   }
 
@@ -131,7 +145,17 @@ export class PaymentContext extends EventBus {
       ctx.apiResponse = signedPayload; // 存一份到上下文，供插件使用
 
       // 4.2 获取执行器 (IoC: 由 Context 决定使用哪个 Invoker)
-      const invoker = InvokerFactory.create(strategyName, this.invokerType, this.logger);
+
+      let resolvedType: string;
+
+      if (typeof this.invokerType === 'function') {
+        resolvedType = this.invokerType(strategyName);
+        this.logger.debug(`[PaymentContext] Late-binding invokerType resolved to: ${resolvedType}`);
+      } else {
+        resolvedType = this.invokerType || 'auto';
+      }
+
+      const invoker = InvokerFactory.create(resolvedType, strategyName, this.logger);
 
       // 4.3 唤起支付 (Invoke)
       const rawResult = await invoker.invoke(signedPayload);

@@ -11,6 +11,9 @@ export class AlipayMiniInvoker implements PaymentInvoker {
     public logger?: Logger,
   ) {}
 
+  static type = 'alipay-mini';
+  static matcher = (_channel: string) => typeof my !== 'undefined' && !!my.tradePay;
+
   async invoke(payload: any): Promise<PayResult> {
     return new Promise((resolve, reject) => {
       if (typeof my === 'undefined' || !my.tradePay) {

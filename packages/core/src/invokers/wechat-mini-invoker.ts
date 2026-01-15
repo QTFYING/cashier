@@ -9,11 +9,24 @@ import type { PaymentInvoker, WechatTypeGlobal } from './types';
  */
 declare const wx: WechatTypeGlobal;
 
+/**
+ * WechatMiniInvoker
+ *
+ * 微信小程序原生支付执行器
+ * 负责调用 wx.requestPayment 唤起微信收银台
+ *
+ * 适用于：
+ * 1. 微信支付 (Native)
+ * 2. 云闪付 (聚合模式，底层复用 wx.requestPayment)
+ */
 export class WechatMiniInvoker implements PaymentInvoker {
   constructor(
     private _provider: string,
     public logger?: Logger,
   ) {}
+
+  static type = 'wechat-mini';
+  static matcher = (_channel: string) => typeof wx !== 'undefined' && !!wx.requestPayment;
 
   async invoke(payload: any): Promise<PayResult> {
     return new Promise((resolve, reject) => {

@@ -11,6 +11,9 @@ export class UniAppInvoker implements PaymentInvoker {
     public logger?: Logger,
   ) {}
 
+  static type = 'uni-app';
+  static matcher = (_channel: string) => typeof uni !== 'undefined' && !!uni.requestPayment;
+
   async invoke(orderInfo: any): Promise<PayResult> {
     return new Promise((resolve, reject) => {
       // UniApp 的统一调用方式

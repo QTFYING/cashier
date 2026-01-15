@@ -36,6 +36,22 @@ export interface WechatTypeGlobal {
     /** 接口调用结束的回调函数（调用成功、失败都会执行） */
     complete?: (res: any) => void;
   }): void;
+  /**
+   * 打开另一个小程序
+   * @see https://developers.weixin.qq.com/miniprogram/dev/api/open-api/miniprogram-navigate/wx.navigateToMiniProgram.html
+   */
+  navigateToMiniProgram(options: { appId: string; path?: string; extraData?: object; envVersion?: string; success?: (res: any) => void; fail?: (err: any) => void }): void;
+}
+
+export interface ByteDanceTypeGlobal {
+  /**
+   * 字节系小程序支付
+   */
+  pay(options: { orderInfo: object; service: number; success?: (res: any) => void; fail?: (err: any) => void }): void;
+  /**
+   * 打开另一个小程序
+   */
+  navigateToMiniProgram(options: { appId: string; path?: string; extraData?: object; envVersion?: string; success?: (res: any) => void; fail?: (err: any) => void }): void;
 }
 
 export interface AlipayTypeGlobal {

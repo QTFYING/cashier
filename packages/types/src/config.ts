@@ -1,4 +1,4 @@
-import type { InvokerType } from './enum';
+import type { PayPlatformType } from './enum';
 import type { HttpClient } from './http';
 import type { PaymentPlugin } from './lifecycle';
 import { Logger } from './logger';
@@ -17,8 +17,13 @@ export interface SDKConfig {
   /** 自定义日志记录器 */
   logger?: Logger;
 
-  /** 显式指定运行环境 (通常不需要，SDK 会自动探测) */
-  invokerType?: InvokerType;
+  /**
+   * 指定使用的 Invoker 类型
+   * - 'auto': 自动根据环境探测 (默认)
+   * - 'wechat-mini': 强制使用微信小程序
+   * - (channel) => type: 运行时动态决策
+   */
+  invokerType?: PayPlatformType | ((channel: string) => PayPlatformType);
 
   /** 基础设施插件列表 */
   plugins?: PaymentPlugin[];

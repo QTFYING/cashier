@@ -13,6 +13,9 @@ declare const JSBridge: NativeBridgeSack;
  */
 
 export class BridgeInvoker implements PaymentInvoker {
+  static type = 'bridge';
+  static matcher = (_channel: string) => typeof JSBridge !== 'undefined' && !!JSBridge.call;
+
   async invoke(data: any) {
     if (JSBridge.call) {
       return JSBridge.call('nativePay', data);
