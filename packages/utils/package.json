@@ -1,6 +1,6 @@
 {
   "name": "@my-cashier/utils",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Shared utility functions for Cashier SDK",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
