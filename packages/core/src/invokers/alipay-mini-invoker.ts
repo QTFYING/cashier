@@ -1,7 +1,6 @@
 import { type Logger, PayErrorCode, type PayResult } from '@my-cashier/types';
 import { PayError } from '../payment-error';
-import { AlipayTypeGlobal } from '../types/platform-shim';
-import { type PaymentInvoker } from './types';
+import type { AlipayTypeGlobal, PaymentInvoker } from './types';
 
 // 声明支付宝全局对象
 declare const my: AlipayTypeGlobal;

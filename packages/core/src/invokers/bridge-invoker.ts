@@ -1,7 +1,6 @@
-import { JSBridgeGlobal } from '../types/platform-shim';
-import { type PaymentInvoker } from './types';
+import type { NativeBridgeSack, PaymentInvoker } from './types';
 
-declare const JSBridge: JSBridgeGlobal;
+declare const JSBridge: NativeBridgeSack;
 
 /**
  * webview调用原生调起支付控件
@@ -15,6 +14,9 @@ declare const JSBridge: JSBridgeGlobal;
 
 export class BridgeInvoker implements PaymentInvoker {
   async invoke(data: any) {
-    return JSBridge.call('nativePay', data);
+    if (JSBridge.call) {
+      return JSBridge.call('nativePay', data);
+    }
+    throw new Error('JSBridge.call is not defined');
   }
 }

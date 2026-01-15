@@ -1,7 +1,6 @@
 import { type Logger, PayErrorCode, PayResult } from '@my-cashier/types';
 import { PayError } from '../payment-error';
-import { WechatTypeGlobal } from '../types/platform-shim';
-import type { PaymentInvoker } from './types';
+import type { PaymentInvoker, WechatTypeGlobal } from './types';
 
 /**
  * 声明 wx 全局对象。
