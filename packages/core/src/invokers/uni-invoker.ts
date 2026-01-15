@@ -1,15 +1,18 @@
 import { type Logger, type PayResult, PayErrorCode } from '@my-cashier/types';
 import { PayError } from '../payment-error';
-import { type PaymentInvoker } from './types';
+import type { PaymentInvoker, UniAppTypeGlobal } from './types';
 
 // 声明 uni 对象，防止 TS 报错
-declare const uni: any;
+declare const uni: UniAppTypeGlobal;
 
 export class UniAppInvoker implements PaymentInvoker {
   constructor(
     private provider: string,
     public logger?: Logger,
   ) {}
+
+  static type = 'uni-app';
+  static matcher = (_channel: string) => typeof uni !== 'undefined' && !!uni.requestPayment;
 
   async invoke(orderInfo: any): Promise<PayResult> {
     return new Promise((resolve, reject) => {

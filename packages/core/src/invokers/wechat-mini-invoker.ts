@@ -1,16 +1,32 @@
 import { type Logger, PayErrorCode, PayResult } from '@my-cashier/types';
 import { PayError } from '../payment-error';
+import type { PaymentInvoker, WechatTypeGlobal } from './types';
 
-import type { PaymentInvoker } from './types';
+/**
+ * 声明 wx 全局对象。
+ * 使用自定义的 WechatTypeGlobal Shim 而不是 @types/wechat-miniprogram
+ * 是为了避免引入外部依赖以及防止全局命名空间污染，确保核心包的轻量与独立性。
+ */
+declare const wx: WechatTypeGlobal;
 
-// 声明 wx 全局对象，防止 TS 报错
-declare const wx: any;
-
+/**
+ * WechatMiniInvoker
+ *
+ * 微信小程序原生支付执行器
+ * 负责调用 wx.requestPayment 唤起微信收银台
+ *
+ * 适用于：
+ * 1. 微信支付 (Native)
+ * 2. 云闪付 (聚合模式，底层复用 wx.requestPayment)
+ */
 export class WechatMiniInvoker implements PaymentInvoker {
   constructor(
     private _provider: string,
     public logger?: Logger,
   ) {}
+
+  static type = 'wechat-mini';
+  static matcher = (_channel: string) => typeof wx !== 'undefined' && !!wx.requestPayment;
 
   async invoke(payload: any): Promise<PayResult> {
     return new Promise((resolve, reject) => {

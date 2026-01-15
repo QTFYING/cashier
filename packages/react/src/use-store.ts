@@ -1,6 +1,6 @@
+import type { Store } from '@my-cashier/utils';
 import { useSyncExternalStore } from 'react';
-import type { CashierState } from './types';
 
-export const useStore = (store: any): CashierState => {
+export const useStore = <T>(store: Store<T>): T => {
   return useSyncExternalStore(store.subscribe.bind(store), store.getState.bind(store));
 };

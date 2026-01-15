@@ -1,4 +1,4 @@
-import { PayErrorCode, type Logger, type PaymentPlugin } from '@my-cashier/types';
+import { PayErrorCode, type Logger, type PaymentContextState, type PaymentPlugin } from '@my-cashier/types';
 import { PayError } from './payment-error';
 
 export class PluginDriver {
@@ -11,7 +11,7 @@ export class PluginDriver {
     this.plugins.push(plugin);
   }
 
-  async implant<K extends keyof PaymentPlugin>(hook: K, ctx: any, ...args: any[]) {
+  async implant<K extends keyof PaymentPlugin>(hook: K, ctx: PaymentContextState, ...args: unknown[]) {
     for (const plugin of this.plugins) {
       const fn = plugin[hook];
       if (!fn) continue;
@@ -28,16 +28,18 @@ export class PluginDriver {
         if (ctx && ctx.aborted) {
           throw new PayError(PayErrorCode.PLUGIN_INTERRUPT, `Aborted by plugin: ${plugin.name}`);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         // 场景 A: 自身是 Critical 插件 -> 抛错，中断全流程
         if (isCritical) {
           // 如果已经是 PayError，直接抛；否则包装一下
           if (err instanceof PayError) throw err;
-          throw new PayError(PayErrorCode.PLUGIN_ERROR, `[Critical Plugin ${plugin.name}] ${String(hook)} failed: ${err.message}`, err);
+          const msg = err instanceof Error ? err.message : String(err);
+          throw new PayError(PayErrorCode.PLUGIN_ERROR, `[Critical Plugin ${plugin.name}] ${String(hook)} failed: ${msg}`, err);
         }
 
         // 场景 B: 自身是 Non-Critical 插件 -> 吞掉错误，仅打印警告，流程继续！
-        this.logger?.warn(`[⚠️ Non-Critical Plugin ${plugin.name}] error ignored:`, err.message);
+        const msg = err instanceof Error ? err.message : String(err);
+        this.logger?.warn(`[⚠️ Non-Critical Plugin ${plugin.name}] error ignored:`, msg);
       }
     }
   }
@@ -65,7 +67,7 @@ export class PluginDriver {
   /**
    * 创建一个递归代理，用于监控插件对 Context 的修改
    */
-  private createPluginProxy(ctx: any, pluginName: string) {
+  private createPluginProxy(ctx: PaymentContextState, pluginName: string) {
     if (typeof Proxy === 'undefined') return ctx;
     const createHandler = (path: string): ProxyHandler<any> => ({
       set: (target, prop, value, receiver) => {

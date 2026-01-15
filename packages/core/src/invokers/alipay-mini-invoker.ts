@@ -1,15 +1,18 @@
 import { type Logger, PayErrorCode, type PayResult } from '@my-cashier/types';
 import { PayError } from '../payment-error';
-import { type PaymentInvoker } from './types';
+import type { AlipayTypeGlobal, PaymentInvoker } from './types';
 
 // 声明支付宝全局对象
-declare const my: any;
+declare const my: AlipayTypeGlobal;
 
 export class AlipayMiniInvoker implements PaymentInvoker {
   constructor(
     private _provider: string,
     public logger?: Logger,
   ) {}
+
+  static type = 'alipay-mini';
+  static matcher = (_channel: string) => typeof my !== 'undefined' && !!my.tradePay;
 
   async invoke(payload: any): Promise<PayResult> {
     return new Promise((resolve, reject) => {

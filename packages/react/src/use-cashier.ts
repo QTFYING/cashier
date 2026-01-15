@@ -1,35 +1,91 @@
-import type { PayParams, PayResult } from '@my-cashier/core';
-import { useCallback, useContext, useEffect, useRef } from 'react';
+import { PayError, PaymentContext } from '@my-cashier/core';
+import { ErrorCategory, PayParams, PayResult, PaymentState } from '@my-cashier/types';
+import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { CashierContext } from './cashier-context';
-import { PaymentStatusEnum } from './enums';
 import type { UseCashierOptions } from './types';
 import { useStore } from './use-store';
 
+/**
+ * Hook: useCashier
+ *
+ * 核心支付 Hook，负责:
+ * 1. 状态订阅与映射 (State Mapping)
+ * 2. 插件自动注册 (Plugins)
+ * 3. 事件桥接 (Event Bus)
+ * 4. 动作封装 (Actions)
+ * 5. 动作封装 (Actions)
+ */
 export function useCashier(options: UseCashierOptions = {}) {
-  const context = useContext(CashierContext);
+  const { cashier } = useCashierContext();
 
+  useInjectPlugins(cashier, options.plugins);
+  useEventBus(cashier, options);
+
+  const state = useCashierState(cashier);
+
+  const pay = useCallback((strategyName: string, params: PayParams) => cashier.execute(strategyName, params), [cashier]);
+
+  const reset = useCallback(() => {
+    cashier.store.setState({ loading: false, status: 'idle', result: undefined, error: undefined });
+  }, [cashier]);
+
+  return {
+    ...state,
+    cashier,
+    pay,
+    reset,
+    inferErrorType,
+  };
+}
+
+/**
+ * 确保 Hook 必须在 Provider 下使用
+ */
+function useCashierContext() {
+  const context = useContext(CashierContext);
   if (!context) {
     throw new Error('useCashier must be used within a CashierProvider');
   }
+  return context;
+}
 
-  const { cashier } = context;
+/**
+ * 状态映射 Hook
+ * 将 Store 的原始状态转换为 UI 友好的 derived state
+ */
+function useCashierState(cashier: PaymentContext) {
+  const storeState = useStore<PaymentState>(cashier.store);
+  return useMemo(() => {
+    const isProcessing = storeState.status === 'processing' || storeState.status === 'pending';
+    return {
+      loading: storeState.loading || isProcessing,
+      status: storeState.status || 'idle',
+      result: storeState.result || null,
+      error: (storeState.error as PayError) || null,
+      action: storeState.result?.action || null,
+    };
+  }, [storeState]);
+}
 
-  // Ref 保持引用，避免 useEffect 依赖地狱
+/**
+ * 插件自动注册 Hook
+ */
+function useInjectPlugins(cashier: PaymentContext, plugins: UseCashierOptions['plugins']) {
+  const registeredRef = useRef(false);
+
+  useEffect(() => {
+    if (!plugins?.length || registeredRef.current) return;
+    plugins.forEach((p) => cashier.use(p));
+    registeredRef.current = true;
+  }, [cashier, plugins]);
+}
+
+/**
+ * Event Bus Hook
+ * 将 SDK 的 EventBus 事件通过回调透传给 UI
+ */
+function useEventBus(cashier: PaymentContext, options: UseCashierOptions) {
   const optionsRef = useRef(options);
-
-  // --- 1. 订阅 Store 更新 ---
-  // 使用封装好的 hook，让代码看起来更“傻瓜式”
-  const storeState = useStore(cashier.store);
-
-  const isProcess = storeState.status === 'processing' || storeState.status === 'pending';
-
-  const state = {
-    loading: storeState.loading || isProcess,
-    status: storeState.status || null,
-    result: storeState.result || null,
-    error: (storeState.error as any) || null,
-    action: storeState.result?.action || null,
-  };
 
   useEffect(() => {
     optionsRef.current = options;
@@ -38,53 +94,33 @@ export function useCashier(options: UseCashierOptions = {}) {
   useEffect(() => {
     if (!cashier) return;
 
-    const handleSuccess = (res: PayResult) => optionsRef.current?.onSuccess?.(res);
-    const handleFail = (err: any) => optionsRef.current?.onError?.(err);
-    const handleStatusChange = (payload: { status: string; result?: any }) => {
-      optionsRef.current?.onStatusChange?.(payload.status, payload.result);
-    };
+    const onSuccess = (res: PayResult) => optionsRef.current.onSuccess?.(res);
+    const onFail = (err: any) => optionsRef.current.onError?.(err);
+    const onStatusChange = ({ status, result }: any) => optionsRef.current.onStatusChange?.(status, result);
 
-    cashier.on('success', handleSuccess);
-    cashier.on('fail', handleFail);
-    cashier.on('statusChange', handleStatusChange);
+    cashier.on('success', onSuccess);
+    cashier.on('fail', onFail);
+    cashier.on('statusChange', onStatusChange);
 
     return () => {
-      cashier.off('success', handleSuccess);
-      cashier.off('fail', handleFail);
-      cashier.off('statusChange', handleStatusChange);
+      cashier.off('success', onSuccess);
+      cashier.off('fail', onFail);
+      cashier.off('statusChange', onStatusChange);
     };
   }, [cashier]);
+}
 
-  // --- 2. 核心支付动作 (负责处理 同步/主动 反馈) ---
-  // 场景：点击支付按钮 -> loading -> 拿到二维码/跳转链接
-  const pay = useCallback(
-    async (strategyName: string, params: PayParams) => {
-      // 执行 SDK
-      // 注意：这里的 res 包含了即时结果 (比如 pending + qrcode)
-      return await cashier.execute(strategyName, params);
-    },
-    [cashier],
-  );
+/**
+ * 错误类型推断工具
+ * (Pure Function)
+ */
+function inferErrorType(err: any): { type: keyof typeof ErrorCategory; desc: string; error: any } {
+  if (err instanceof PayError) {
+    if (err.isSilent) return { type: ErrorCategory.SILENT, desc: 'Silent error. No need to handle the page, but attention is required.', error: err };
+    if (err.shouldRetry) return { type: ErrorCategory.RETRYABLE, desc: 'You can initiate a retry.', error: err };
+    return { type: ErrorCategory.FATAL, desc: 'You need to handle it yourself.', error: err };
+  }
 
-  // --- 3. reset 状态 ---
-  const reset = useCallback(() => {
-    // 必须调用 store 的方法来重置，而不是本地 setState
-    cashier.store.setState({ loading: false, status: 'idle', result: undefined, error: undefined });
-  }, [cashier]);
-
-  return {
-    // 基础状态
-    loading: state.loading,
-    result: state.result,
-    error: state.error,
-    status: state.status,
-    statusText: state.status ? PaymentStatusEnum[state.status] : '',
-
-    // 方法
-    pay,
-    reset,
-
-    // 实例
-    cashier,
-  };
+  const message = err instanceof Error ? err.message : typeof err === 'string' ? err : 'System exception.';
+  return { type: ErrorCategory.UNKNOWN, desc: message, error: err };
 }

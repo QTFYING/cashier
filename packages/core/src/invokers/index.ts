@@ -1,8 +1,7 @@
-export { AlipayMiniInvoker } from './alipay-mini-invoker';
-export { BridgeInvoker } from './bridge-invoker';
-export { UniAppInvoker } from './uni-invoker';
-export { WebInvoker } from './web-invoker';
-export { WechatMiniInvoker } from './wechat-mini-invoker';
-
-// types
-export { type PaymentInvoker } from './types';
+export * from './alipay-mini-invoker';
+export * from './bridge-invoker';
+export * from './mini-program-jump-invoker';
+export * from './types';
+export * from './uni-invoker';
+export * from './web-invoker';
+export * from './wechat-mini-invoker';

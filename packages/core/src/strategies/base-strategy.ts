@@ -1,4 +1,5 @@
 import type { HttpClient, Logger, PayParams, PayResult, PaySt, StrategyOptions } from '@my-cashier/types';
+import type { PaymentContext } from '../payment-context';
 
 export type StateCallBack = (status: PaySt) => void;
 
@@ -12,7 +13,7 @@ export abstract class BaseStrategy<TConfig = any> {
 
   protected config: TConfig;
   protected options: StrategyOptions;
-  public context?: any; // PaymentContext 注入
+  public context?: PaymentContext; // PaymentContext 注入
   public logger?: Logger; // PaymentContext 注入
 
   constructor(config: TConfig, options: StrategyOptions = {}) {

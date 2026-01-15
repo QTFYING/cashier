@@ -1,10 +1,8 @@
-import type { HttpClient, PaymentContextState, PaymentPlugin, PayParams, PayPlatformType, PayResult, SDKConfig } from '@my-cashier/types';
-import { PayErrorCode, PaySt } from '@my-cashier/types';
-import { createDefaultFetcher, ScriptLoader } from '@my-cashier/utils';
-import { Store } from './cashier-store';
+import type { HttpClient, PaymentContextState, PaymentPlugin, PaymentState, PayParams, PayPlatformType, PayResult, SDKConfig } from '@my-cashier/types';
+import { PayErrorCode } from '@my-cashier/types';
+import { createDefaultFetcher, createLogger, ScriptLoader, Store } from '@my-cashier/utils';
 import { EventBus } from './event-bus';
 import { InvokerFactory } from './invoker-factory';
-import { createLogger } from './logger';
 import { PayError } from './payment-error';
 import { PluginDriver } from './plugin-driver';
 import { EventBridgePlugin } from './plugins/event-bridge-plugin';
@@ -12,14 +10,6 @@ import { PollingManager } from './polling-manager';
 import type { BaseStrategy } from './strategies/base-strategy';
 
 // 9. 状态管理 (PaymentState definition)
-export interface PaymentState {
-  status: PaySt | 'idle';
-  result?: PayResult;
-  loading: boolean;
-  error?: Error;
-  /** 插件之间、轮询依赖的上文 */
-  preData?: Record<string, string>;
-}
 
 export class PaymentContext extends EventBus {
   // 1. 策略池
@@ -98,6 +88,28 @@ export class PaymentContext extends EventBus {
   }
 
   /**
+   * 注入 Invoker
+   * 方式 1: injectInvoker(InvokerClass) - 读取静态 type/matcher (推荐)
+   * 方式 2: injectInvoker(type, InvokerClass) - 覆盖 type, 沿用静态 matcher
+   * 方式 3: injectInvoker(type, InvokerClass, matcher) - 全覆盖 (兼容旧版)
+   */
+  injectInvoker(InvokerClass: any): this;
+  injectInvoker(type: string, InvokerClass: any): this;
+  injectInvoker(typeOrClass: string | any, InvokerClassOrMatcher?: any, matcher?: (channel: string) => boolean): this {
+    // Case 1: injectInvoker(InvokerClass)
+    if (typeof typeOrClass !== 'string') {
+      InvokerFactory.register(typeOrClass);
+      return this;
+    }
+
+    const type = typeOrClass;
+    const InvokerClass = InvokerClassOrMatcher;
+
+    InvokerFactory.register(InvokerClass, { type, matcher: matcher! });
+    return this;
+  }
+
+  /**
    * 核心执行器
    */
   async execute(strategyName: PayPlatformType, params: PayParams): Promise<PayResult> {
@@ -133,7 +145,17 @@ export class PaymentContext extends EventBus {
       ctx.apiResponse = signedPayload; // 存一份到上下文，供插件使用
 
       // 4.2 获取执行器 (IoC: 由 Context 决定使用哪个 Invoker)
-      const invoker = InvokerFactory.create(strategyName, this.invokerType, this.logger);
+
+      let resolvedType: string;
+
+      if (typeof this.invokerType === 'function') {
+        resolvedType = this.invokerType(strategyName);
+        this.logger.debug(`[PaymentContext] Late-binding invokerType resolved to: ${resolvedType}`);
+      } else {
+        resolvedType = this.invokerType || 'auto';
+      }
+
+      const invoker = InvokerFactory.create(resolvedType, strategyName, this.logger);
 
       // 4.3 唤起支付 (Invoke)
       const rawResult = await invoker.invoke(signedPayload);

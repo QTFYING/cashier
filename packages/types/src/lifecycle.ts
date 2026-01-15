@@ -37,6 +37,9 @@ export interface PaymentContextState {
 
   // TODO: 共享状态 (用于插件间传值，类似 Koa ctx.state)
   state?: Record<string, any>;
+
+  // 中断标志
+  aborted?: boolean;
 }
 
 /**
@@ -112,4 +115,17 @@ export interface PaymentPlugin {
    * 场景：关闭 Loading、销毁临时资源
    */
   onCompleted?(ctx: PaymentContextState): Promise<void> | void;
+}
+
+/**
+ * 核心支付状态 (Store State)
+ * UI 层和 Core 层共享的数据结构
+ */
+export interface PaymentState {
+  status: PaySt | 'idle';
+  result?: PayResult;
+  loading: boolean;
+  error?: Error;
+  /** 插件之间、轮询依赖的上文 */
+  preData?: Record<string, string>;
 }
