@@ -3,9 +3,12 @@ import { PayError } from '../payment-error';
 import type { PaymentInvoker } from './types';
 import { AlipayWebHandler, WebInvokerFactory, WechatWebHandler } from './web';
 
-WebInvokerFactory.register(PaymentChannelEnum.WE_CHAT, new WechatWebHandler());
-WebInvokerFactory.register(PaymentChannelEnum.ALI_PAY, new AlipayWebHandler());
-
+/**
+ * 统一 web 支付方式
+ *
+ * @example
+ * WebInvoker.register('stripe', new StripeWebHandler());
+ */
 export class WebInvoker implements PaymentInvoker {
   constructor(
     private channel: PayPlatformType = 'other',
@@ -35,3 +38,12 @@ export class WebInvoker implements PaymentInvoker {
     }
   }
 }
+
+/**
+ * SDK 内部默认注入支付方式
+ * 微信   WechatWebHandler
+ * 支付宝 AlipayWebHandler
+ */
+
+WebInvoker.register(PaymentChannelEnum.WE_CHAT, new WechatWebHandler());
+WebInvoker.register(PaymentChannelEnum.ALI_PAY, new AlipayWebHandler());
