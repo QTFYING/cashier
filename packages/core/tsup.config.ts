@@ -1,10 +1,22 @@
 import { defineConfig } from 'tsup';
 
-export default defineConfig({
+const commonConfig = {
   entry: ['src/index.ts'],
-  format: ['cjs', 'esm'],
-  dts: true,
-  minify: true,
   external: ['@my-cashier/types', '@my-cashier/utils'],
-  clean: true,
-});
+  clean: false,
+  dts: false,
+  treeshake: true,
+};
+
+export default defineConfig([
+  {
+    ...commonConfig,
+    format: ['esm'],
+    outDir: 'dist',
+    entry: { index: 'src/index.ts' },
+    minify: true,
+    clean: false,
+    dts: true,
+    sourcemap: true,
+  },
+]);
